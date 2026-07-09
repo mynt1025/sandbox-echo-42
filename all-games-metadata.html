@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ECHO BO — All Games (Metadata Management) — MOCKUP</title>
+<style>
+  :root{
+    --bg:#f3f4f8;
+    --panel:#ffffff;
+    --ink:#1f2430;
+    --ink-soft:#6b7280;
+    --ink-faint:#9aa1ad;
+    --line:#e8eaf0;
+    --line-soft:#f0f1f6;
+    --accent:#6d5bf0;
+    --accent-soft:#efeafe;
+    --accent-2:#8a7bf5;
+    --green:#22c55e;
+    --amber:#f59e0b;
+    --red:#ef4444;
+    --chip:#eef0f6;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(20,20,40,.04),0 4px 16px rgba(20,20,40,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:13px;line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:flex;min-height:100vh}
+
+  /* Sidebar */
+  .sidebar{width:210px;background:#fbfbfe;border-right:1px solid var(--line);flex:0 0 210px;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:8px;padding:0 18px 16px;font-weight:700;color:var(--accent);font-size:15px}
+  .brand .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#ff5fa2,#6d5bf0)}
+  .group-pill{margin:0 14px 14px;display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--ink-soft)}
+  .group-pill .sw{background:var(--accent);color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600}
+  .nav-sec{padding:8px 14px 2px;color:var(--ink-faint);font-size:11px;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;margin-top:6px}
+  .nav a{display:block;padding:8px 14px 8px 26px;color:var(--ink-soft);text-decoration:none;font-size:12.5px;border-radius:0}
+  .nav a:hover{background:var(--line-soft)}
+  .nav a.active{background:var(--accent);color:#fff;margin:0 10px;border-radius:8px;padding-left:16px;font-weight:600}
+
+  /* Main */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{height:48px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:0 22px;background:#fff;color:var(--ink-soft);font-size:12px}
+  .avatar{width:26px;height:26px;border-radius:50%;background:#cfd3de}
+  .content{padding:18px 22px 8px;flex:1;min-width:0}
+
+  .crumb{display:flex;align-items:center;gap:8px;color:var(--ink-soft);font-size:13px;margin-bottom:10px}
+  .crumb b{color:var(--ink)}
+  .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  .tabs span{padding:8px 0;color:var(--ink-soft);cursor:pointer;font-size:13px;border-bottom:2px solid transparent}
+  .tabs span.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+  .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer;color:var(--ink);white-space:nowrap}
+  .btn:hover{border-color:#d7d9e3;background:#fafaff}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:#5d4cdd}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--ink-soft)}
+
+  /* Filters */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .filters{padding:14px 18px;margin-bottom:14px}
+  .filters-header{display:flex;align-items:center;justify-content:space-between}
+  .filters-header .ttl{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+  .badge{background:var(--accent);color:#fff;border-radius:20px;min-width:20px;height:20px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .badge.zero{background:#cbd0db}
+  .filters-header .link{font-weight:500}
+  .filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 18px}
+  .field label{display:block;font-size:12px;color:var(--ink);margin-bottom:6px;font-weight:500}
+  .field input,.field select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;background:#fff;color:var(--ink);outline:none}
+  .field input:focus,.field select:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px var(--accent-soft)}
+  .filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:14px}
+  .link{color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:12.5px}
+  .link:hover{color:var(--ink)}
+
+  /* Toolbar */
+  .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+  .toolbar .left{display:flex;align-items:center;gap:10px}
+  .count-note{color:var(--ink-soft);font-size:12px}
+
+  /* Table */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow)}
+  table{border-collapse:separate;border-spacing:0;table-layout:fixed}
+  th,td{overflow:hidden;text-overflow:ellipsis}
+  thead th{position:sticky;top:0;background:#fafafe;z-index:2;text-align:left;font-weight:600;color:var(--ink-soft);font-size:11.5px;text-transform:none;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;user-select:none}
+  .col-resizer{position:absolute;top:0;right:0;width:9px;height:100%;cursor:col-resize;z-index:6}
+  .col-resizer::after{content:"";position:absolute;right:2px;top:7px;bottom:7px;width:2px;border-radius:2px;background:transparent}
+  .col-resizer:hover::after,body.resizing .col-resizer::after{background:var(--accent)}
+  body.resizing{cursor:col-resize;user-select:none}
+  thead th.sortable{cursor:pointer}
+  thead th.sortable:hover{color:var(--ink)}
+  th .sort-ind{margin-left:5px;font-size:10px;display:inline-block}
+  th .sort-ind.neutral{color:#c2c7d2;font-size:11px}
+  th .sort-ind.active{color:var(--accent)}
+  th.sortable:hover .sort-ind.neutral{color:var(--ink-soft)}
+  tbody td{padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:middle;font-size:12.5px;white-space:nowrap}
+  tbody tr:hover{background:#fafaff}
+  tbody tr.selected{background:var(--accent-soft)}
+  .col-checkbox{width:38px;text-align:center}
+  .sticky-l{position:sticky;background:#fff;z-index:1}
+  tr:hover .sticky-l{background:#fafaff}
+  tr.selected .sticky-l{background:var(--accent-soft)}
+  thead th.sticky-l{background:#fafafe;z-index:3}
+
+  .game-img{width:34px;height:34px;border-radius:7px;background:linear-gradient(135deg,#3a2f6b,#6d5bf0);display:inline-block;object-fit:cover}
+  .img-cell{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .img-meta{font-size:10px;color:var(--ink-faint)}
+  .gname{font-weight:600;color:var(--ink)}
+  .gid{font-size:11px;color:var(--ink-faint);font-family:ui-monospace,Menlo,monospace}
+
+  /* inline edit */
+  .inline{display:flex;align-items:center;gap:6px}
+  .inline-val{cursor:text;padding:3px 6px;border-radius:6px;border:1px solid transparent;min-width:40px;display:inline-block}
+  .inline-val:hover{border-color:var(--line);background:#fff}
+  .edit-pen{color:var(--accent);cursor:pointer;opacity:.7;font-size:12px}
+  .edit-pen:hover{opacity:1}
+  input.inline-input{border:1px solid var(--accent-2);border-radius:6px;padding:3px 6px;font-size:12.5px;width:120px;outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+  select.cell-select{border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12px;background:#fff}
+
+  /* toggle */
+  .tg{width:34px;height:18px;border-radius:20px;background:#cdd0db;position:relative;cursor:pointer;transition:.15s;display:inline-block}
+  .tg::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.15s}
+  .tg.on{background:var(--accent)}
+  .tg.on::after{left:18px}
+
+  /* tags */
+  .tags-cell{display:flex;align-items:center;gap:5px;flex-wrap:wrap;max-width:260px;white-space:normal}
+  .chip{display:inline-flex;align-items:center;gap:4px;background:var(--chip);color:#444b5a;border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;white-space:nowrap}
+  .chip .x{cursor:pointer;color:#9aa1ad;font-weight:700;font-size:12px;line-height:1}
+  .chip .x:hover{color:var(--red)}
+  .chip.tag-dead{background:#fde8e8;color:#c0392b}
+  .chip.tag-egypt{background:#fdf0cf;color:#9a6b08}
+  .chip.tag-aztec{background:#def3e3;color:#1f7a4c}
+  .chip.tag-animals{background:#d4f1ef;color:#0f7a73}
+  .chip.tag-cute{background:#fde4f1;color:#c23a86}
+  .chip.tag-fantasy{background:#ece2fd;color:#6b4fd6}
+  .chip.tag-fruits{background:#ffe6d6;color:#c2560c}
+  .chip.tag-myth{background:#e2e6fd;color:#3f47c0}
+  .chip.tag-horror{background:#e4e4ea;color:#3a3a44}
+  .chip.tag-scifi{background:#d9ecfb;color:#1565b8}
+  .chip.tag-adv{background:#fdeccf;color:#b5670d}
+  .chip.suggested{background:#fff;border:1px dashed #f0a04b;color:#b5670d}
+  .chip.suggested .ok{cursor:pointer;color:var(--green);font-weight:700}
+  .chip.suggested .no{cursor:pointer;color:var(--ink-faint);font-weight:700}
+  .add-tag{border:1px dashed #c7c9d6;color:var(--ink-soft);background:#fff;border-radius:20px;padding:2px 8px;font-size:11px;cursor:pointer}
+  .add-tag:hover{border-color:var(--accent);color:var(--accent)}
+
+  .notes-input{border:1px solid transparent;border-radius:6px;padding:4px 6px;font-size:12px;width:150px;background:transparent;color:var(--ink)}
+  .notes-input:hover{border-color:var(--line);background:#fff}
+  .notes-input:focus{border-color:var(--accent-2);background:#fff;outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+  .muted{color:var(--ink-faint)}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* footer */
+  .table-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;color:var(--ink-soft);font-size:12px;flex-wrap:wrap;gap:10px}
+  .foot-left{display:flex;align-items:center;gap:16px}
+  .check{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+  .pager{display:flex;align-items:center;gap:8px}
+  .pager .pg{border:1px solid var(--line);background:#fff;border-radius:7px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+  /* popovers / panels */
+  .pop{position:absolute;z-index:50;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 30px rgba(20,20,40,.16);padding:12px;min-width:220px}
+  .pop h4{margin:0 0 8px;font-size:12px;color:var(--ink)}
+  .pop .row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:7px;cursor:pointer}
+  .pop .row:hover{background:var(--line-soft)}
+  .pop .sep{height:1px;background:var(--line);margin:8px 0}
+  .pop input[type=text]{width:100%;border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;outline:none}
+  .pop input[type=text]:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px var(--accent-soft)}
+  .col-toggle{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:12.5px}
+  .col-toggle input{accent-color:var(--accent)}
+  .col-group-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-faint);margin:10px 0 2px;font-weight:600}
+
+  /* bulk bar */
+  .bulkbar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;display:none;align-items:center;gap:14px;box-shadow:0 10px 40px rgba(0,0,0,.3);z-index:60}
+  .bulkbar.show{display:flex}
+  .bulkbar .b-btn{background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer}
+  .bulkbar .b-btn:hover{background:rgba(255,255,255,.22)}
+  .bulkbar .b-count{font-weight:600}
+  .bulkbar .b-clear{cursor:pointer;color:#c9c9d6}
+
+  .pop-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+  .mockup-banner{background:#fff6dd;border:1px solid #f3dca0;color:#8a6d1a;border-radius:8px;padding:6px 12px;font-size:12px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .hint{color:var(--ink-faint);font-size:11.5px}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:12.5px;z-index:80;opacity:0;transition:.2s;pointer-events:none}
+  .toast.show{opacity:1}
+  code{background:var(--line-soft);border-radius:4px;padding:1px 5px;font-size:11.5px;font-family:ui-monospace,Menlo,monospace;color:#4a3fb0}
+  .dropzone{display:flex;align-items:center;gap:20px;border:1.5px dashed #c7c9d6;border-radius:12px;padding:22px 24px;cursor:pointer;background:#fafaff;transition:.15s}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-soft)}
+  .dz-icon{flex:0 0 56px;width:56px;height:56px;border-radius:50%;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent)}
+  .chg{background:#fff7e6;border-radius:4px;padding:1px 5px}
+  .chg .old{color:var(--ink-faint);text-decoration:line-through;margin-right:5px}
+  .chg .new{color:#1f8a4c;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand"><span class="logo"></span> DX TEST</div>
+    <div class="group-pill"><span>Group</span><span class="sw">Switch</span></div>
+    <div class="nav-sec">▾ Finance</div>
+    <nav class="nav">
+      <a>Deposits</a><a>Withdrawals</a><a>Deposit Group Settings</a><a>Withdrawal Group Settings</a>
+    </nav>
+    <div class="nav-sec">▸ Players</div>
+    <div class="nav-sec">▾ Games</div>
+    <nav class="nav">
+      <a>Game Providers</a>
+      <a class="active">All Games</a>
+      <a>Provider Game Ranking</a>
+      <a>Game Categories</a>
+      <a>Games Sync</a>
+      <a>Game Statistics Report</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <span>(GMT+7) 2026-06-30 12:07 ▾</span>
+      <span>?</span>
+      <span class="avatar"></span>
+    </div>
+    <div class="content">
+      <div class="crumb">🎮 Games <span>›</span> <b>All Games</b></div>
+      <div class="page-head">
+        <div class="tabs" style="border:none;margin:0" id="tabs">
+          <span class="active" data-tab="games">Games</span>
+          <span data-tab="upload">Bulk Upload Images</span>
+          <span data-tab="bulkedit">Bulk Edit Game Data <span class="hint" style="color:var(--accent)">new</span></span>
+          <span data-tab="audit">Audit</span>
+        </div>
+        <button class="btn" id="exportBtn">⬇ Export .CSV</button>
+      </div>
+
+    <!-- ============ GAMES VIEW ============ -->
+    <div id="view-games" class="view">
+      <div class="mockup-banner">🧪 <b>MOCKUP / DEMO</b> — placeholder data. New metadata-management features highlighted: custom <b>Tags</b>, <b>Columns</b> show/hide, inline editing, bulk edit. Existing filters/toggles preserved.</div>
+
+      <!-- Filters -->
+      <div class="card filters">
+        <div class="filters-header">
+          <span class="ttl">Filters <span class="badge zero" id="filterCount">0</span></span>
+          <span class="link" id="toggleFilters">Expand Filters ⌄</span>
+        </div>
+        <!-- default / primary filters (match existing BO) -->
+        <div class="filter-grid" id="baseFilters" style="display:none;margin-top:16px">
+          <div class="field"><label>Game Name / ID</label><input id="f-name" placeholder="e.g. Fortune Rabbit" /></div>
+          <div class="field"><label>Game Provider</label><select id="f-provider"></select></div>
+          <div class="field"><label>KZ Game Category</label><select id="f-kz"></select></div>
+          <div class="field"><label>Promo Game Category</label><select id="f-promo"></select></div>
+          <div class="field"><label>Toggles</label><select id="f-toggles">
+            <option value="">All</option>
+            <option value="vis-on">Visible</option>
+            <option value="vis-off">Hidden</option>
+            <option value="maint-on">In maintenance</option>
+            <option value="maint-off">Not in maintenance</option>
+          </select></div>
+          <div class="field"><label>Image Type</label><select id="f-imgtype">
+            <option value="">All</option><option>WEBP</option><option>PNG</option><option>JPG</option>
+          </select></div>
+          <div class="field"><label>Image Size (Min. - Max.)</label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input id="f-imgmin" type="number" placeholder="KB" style="text-align:right" />
+              <span class="muted">-</span>
+              <input id="f-imgmax" type="number" placeholder="KB" style="text-align:right" />
+            </div>
+          </div>
+        </div>
+
+        <!-- extra filters (revealed on Expand) -->
+        <div class="filter-grid" id="extraFilters" style="display:none;margin-top:14px">
+          <div class="field"><label>Provider Game Type</label><select id="f-type"></select></div>
+          <div class="field"><label>Tags <span class="hint">(new)</span></label><select id="f-tag"></select></div>
+          <div class="field"><label>Volatility <span class="hint">(new)</span></label><select id="f-vol"></select></div>
+          <div class="field"><label>Last played <span class="hint">(new)</span></label><select id="f-played">
+            <option value="">All</option>
+            <option value="dead">Dead (5+ months)</option>
+            <option value="stale">Stale (1–5 months)</option>
+            <option value="active">Active (&lt;1 month)</option>
+          </select></div>
+        </div>
+
+        <div class="filter-actions" id="filterActions" style="display:none">
+          <span class="link" id="clearBtn">↻ Clear</span>
+          <button class="btn primary" id="searchBtn">Search</button>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn" id="columnsBtn">▦ Columns</button>
+          <button class="btn" id="bulkBtn">Batch operations ▾</button>
+          <span class="count-note" id="selNote">Selected: 0</span>
+        </div>
+        <div class="count-note" id="resultNote"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table id="tbl">
+          <colgroup id="colgroup"></colgroup>
+          <thead><tr id="head-row"></tr></thead>
+          <tbody id="body"></tbody>
+        </table>
+      </div>
+
+      <div class="table-foot">
+        <div class="foot-left">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" class="check" id="selPage"> Select page</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" class="check" id="selAll"> Select all</label>
+        </div>
+        <div class="pager">
+          <span>Rows per page: <b>10</b></span>
+          <span id="rangeNote">1–10 of 0</span>
+          <span class="pg" id="prevPg">‹</span>
+          <span class="pg" id="nextPg">›</span>
+        </div>
+      </div>
+      <p class="hint" style="margin:10px 2px 26px">Tip: click a column header to sort · click any editable cell (KZ/Promo category, RTP, max win, notes) to edit inline · click <b>+ tag</b> to add tags · dashed amber chips are <b>auto-suggested</b> tags — ✓ to confirm.</p>
+    </div><!-- /view-games -->
+
+    <!-- ============ BULK EDIT GAME DATA VIEW (new) ============ -->
+    <div id="view-bulkedit" class="view" style="display:none">
+      <div class="card" style="padding:26px 30px;max-width:1080px">
+        <h2 style="margin:0 0 4px;font-size:20px">Bulk Edit Game Data</h2>
+        <p class="muted" style="margin:0 0 20px;font-size:13px">Upload a CSV to update <b>Performance</b>, <b>Attributes</b>, and <b>Metadata</b> columns for many games at once. Matched by <code>gameId</code>.</p>
+
+        <h4 style="font-size:14px;margin:0 0 8px">Steps:</h4>
+        <ol style="margin:0 0 22px;padding-left:18px;line-height:2;font-size:13px">
+          <li><a href="#" id="dlTemplate" style="color:var(--accent)">Download CSV template</a> (pre-filled with current values) — OR export from the <b>All Games &gt; Games</b> tab.</li>
+          <li>Edit only the columns you want to change. Leave a cell <b>blank</b> to keep its current value. Do not change the <code>gameId</code> column.</li>
+          <li>Editable fields: <code>rtp</code>, <code>maxWin</code>, <code>vol</code>, <code>theme</code>, <code>release</code>, <code>kz</code>, <code>promo</code>, <code>tags</code> (semicolon-separated), <code>notes</code>, <code>visible</code> (true/false), <code>maint</code> (true/false).</li>
+          <li>Upload your edited CSV below, review the change preview, then apply.</li>
+        </ol>
+
+        <label class="dropzone" id="dropzone">
+          <input type="file" id="csvFile" accept=".csv" hidden>
+          <div class="dz-icon">⬆</div>
+          <div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink)">Click to select a CSV file, or drag and drop here</div>
+            <ul style="margin:8px 0 0;padding-left:18px;color:var(--ink-soft);font-size:12.5px;line-height:1.8">
+              <li><b>Format:</b> UTF-8 CSV, first row = column headers, one row per game.</li>
+              <li><b>Match key:</b> <code>gameId</code> must match an existing game; unmatched rows are skipped and reported.</li>
+            </ul>
+          </div>
+        </label>
+
+        <div id="csvResult" style="display:none;margin-top:20px">
+          <h4 style="font-size:14px;margin:0 0 8px">Preview changes <span class="muted" id="csvSummary"></span></h4>
+          <div class="table-wrap" style="max-height:340px;overflow:auto">
+            <table style="min-width:700px"><thead><tr id="prev-head"></tr></thead><tbody id="prev-body"></tbody></table>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn primary" id="applyCsv">Apply updates</button>
+            <button class="btn" id="cancelCsv">Start over</button>
+          </div>
+        </div>
+
+        <div style="margin-top:24px">
+          <h4 style="font-size:14px;margin:0 0 6px">What's next:</h4>
+          <ol start="5" style="margin:0;padding-left:18px;color:var(--ink-soft);font-size:13px;line-height:1.9">
+            <li>Review the highlighted changes (only modified cells are shown).</li>
+            <li>On <b>Apply</b>, each game is updated and logged to the <b>Audit</b> tab with your username and timestamp.</li>
+          </ol>
+        </div>
+      </div>
+    </div><!-- /view-bulkedit -->
+
+    <!-- ============ PLACEHOLDER VIEWS ============ -->
+    <div id="view-upload" class="view" style="display:none">
+      <div class="card" style="padding:40px;text-align:center;color:var(--ink-soft)">Bulk Upload Images — existing screen (not part of this mockup).</div>
+    </div>
+    <div id="view-audit" class="view" style="display:none">
+      <div class="card" style="padding:0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--line);font-weight:600">Audit log</div>
+        <table style="min-width:auto"><thead><tr>
+          <th>Time</th><th>User</th><th>Game</th><th>Field</th><th>Old → New</th></tr></thead>
+          <tbody id="audit-body"><tr><td colspan="5" style="padding:24px;color:var(--ink-faint);text-align:center">No changes logged yet in this session. Edit cells, toggle, or apply a bulk CSV to populate.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- bulk bar -->
+<div class="bulkbar" id="bulkbar">
+  <span class="b-count"><span id="bulkCount">0</span> selected</span>
+  <button class="b-btn" data-act="tag">+ Add tag</button>
+  <button class="b-btn" data-act="vis">Set visibility</button>
+  <button class="b-btn" data-act="maint">Set maintenance</button>
+  <button class="b-btn" data-act="kz">Set KZ category</button>
+  <span class="b-clear" id="bulkClear">Clear</span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- Placeholder data ---------------- */
+const PROVIDERS=["Big Time Gaming","Booming","Pragmatic Play","PG Soft","Hacksaw","Nolimit City","Play'n GO","Relax Gaming"];
+const TYPES=["SLOT","LIVE","TABLE","FISHING","CRASH"];
+const KZCATS=["SLOT","LIVE CASINO","TABLE","FISHING","ARCADE"];
+const PROMOCATS=["Slots/Fishing","Live Casino","Table Games","Featured","None"];
+const VOLS=["Low","Medium","High","Very High"];
+const THEMES=["Adventure","Egyptian","Fantasy","Animals","Fruits","Mythology","Horror","Sci-Fi"];
+const AGGREG=["Zen","Aurora","Pulse"];
+const EDITORS=["alice.k","brian.t","chloe.m","dewi.s","admin"];
+const PRESET_TAGS=["egypt gods","aztec","animals","cute","fantasy","fruits","mythology","horror","sci-fi","adventure"];
+const TAG_CLASS={
+  "egypt gods":"tag-egypt","aztec":"tag-aztec","animals":"tag-animals","cute":"tag-cute",
+  "fantasy":"tag-fantasy","fruits":"tag-fruits","mythology":"tag-myth","horror":"tag-horror",
+  "sci-fi":"tag-scifi","adventure":"tag-adv"
+};
+// map a game's Theme attribute → a theme tag (used for seeding + auto-suggest)
+const THEME_TAG={Egyptian:"egypt gods",Animals:"animals",Fantasy:"fantasy",Fruits:"fruits",Mythology:"mythology",Horror:"horror","Sci-Fi":"sci-fi",Adventure:"adventure"};
+
+const NAMES=["Monster Quest","Berserkin' Buffalo Power Hit","Wild Silverback","Way of the Wolf Hold and Win Extreme 10,000","Diamond Forge: Link & Loot","Gates of Olympus","Sweet Bonanza","Sugar Rush 1000","Wanted Dead or a Wild","Fruit Party","The Dog House","San Quentin xWays","Mental","Starburst XXXtreme","Book of Dead","Reactoonz","Money Train 4","Bonanza Megaways","Razor Shark","Jammin' Jars 2","Big Bass Bonanza","Le Bandit","Fire in the Hole 2","Dork Unit","Tombstone RIP","Deadwood","Rip City","Wild West Gold","Aztec Bonanza","Great Rhino Deluxe","Phoenix Forge","Cygnus 3","Dragon Hatch 2","Mahjong Ways 2","Treasures of Aztec","Lucky Neko"];
+
+function pick(a,i){return a[i%a.length];}
+function hash(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
+function hex(n){return Math.abs(n).toString(16).padStart(8,"0").slice(0,8);}
+
+function daysToDate(days){
+  // today 2026-06-30
+  const base=new Date(Date.UTC(2026,5,30));
+  base.setUTCDate(base.getUTCDate()-days);
+  return base.toISOString().slice(0,10);
+}
+
+const DATA=NAMES.map((name,i)=>{
+  const h=hash(name);
+  const daysSince=[12,160,200,45,5,30,90,250,8,170,60,400,15,3,210,330,40,20,310,7,25,55,140,260,80,190,360,35,420,110,18,9,75,290,130,22][i]||((h%450));
+  const vol=pick(VOLS,h>>3);
+  const provider=pick(PROVIDERS,h>>1);
+  const theme=pick(THEMES,h>>7);
+  const themeTag=THEME_TAG[theme];
+  const tags=[];
+  if(themeTag && i%2===0) tags.push(themeTag);            // seed a theme tag on some games
+  if(i%6===2) tags.push("cute");                          // a few hand-tagged "cute" games
+  // auto-suggested: theme tag inferred from the game's Theme attribute
+  const suggested=[];
+  if(themeTag && !tags.includes(themeTag)) suggested.push(themeTag);
+  return {
+    id:hex(h),
+    name, provider,
+    aggregator:pick(AGGREG,h),
+    kz:pick(KZCATS,h>>2),
+    promo:pick(PROMOCATS,h>>4),
+    type:pick(TYPES,h>>5),
+    rtp:(94+ (h%65)/10).toFixed(2),
+    maxWin:[5000,7500,10000,12000,15000,21100,25000,50000][h%8],
+    vol,
+    reels:pick(["5x3","5x4","6x4","6-reel cluster","5x5"],h>>6),
+    theme,
+    release:daysToDate(daysSince+ (h%900)),
+    bets:Math.round((h%900+20)*1.37),
+    players:Math.round((h%700+5)),
+    daysSince,
+    lastPlayed:daysToDate(daysSince),
+    visible:daysSince<150,
+    maint:i%11===0,
+    editedBy:pick(EDITORS,h),
+    editedAt:daysToDate(h%40),
+    notes:i%6===0?"Check RTP config":"",
+    imgKB:(8+ (h%900)/100).toFixed(2),
+    tags, suggested
+  };
+});
+
+/* ---------------- Column definitions ---------------- */
+const COLUMNS=[
+  {key:"_check",label:"",group:"",fixed:true,visible:true,sortable:false},
+  {key:"image",label:"Image",group:"Core",visible:true,sortable:false},
+  {key:"name",label:"Game Name / ID",group:"Core",visible:true,sortable:true},
+  {key:"tags",label:"Tags 🏷",group:"Metadata (new)",visible:true,sortable:false},
+  {key:"provider",label:"Provider",group:"Core",visible:true,sortable:true},
+  {key:"aggregator",label:"Provider Aggregator",group:"Core",visible:false,sortable:true},
+  {key:"kz",label:"KZ Game Category",group:"Core",visible:true,sortable:true,edit:"select",opts:KZCATS},
+  {key:"promo",label:"Promo Game Category",group:"Core",visible:true,sortable:true,edit:"select",opts:PROMOCATS},
+  {key:"type",label:"Provider Game Type",group:"Core",visible:true,sortable:true},
+  {key:"rtp",label:"RTP %",group:"Performance",visible:true,sortable:true,edit:"text",num:true},
+  {key:"daysSince",label:"Days since play",group:"Performance",visible:true,sortable:true,num:true},
+  {key:"lastPlayed",label:"Last played",group:"Performance",visible:true,sortable:true},
+  {key:"bets",label:"Total bets (k)",group:"Performance",visible:false,sortable:true,num:true},
+  {key:"players",label:"Total players",group:"Performance",visible:false,sortable:true,num:true},
+  {key:"vol",label:"Volatility",group:"Attributes",visible:true,sortable:true},
+  {key:"maxWin",label:"Max win (x)",group:"Attributes",visible:true,sortable:true,edit:"text",num:true},
+  {key:"reels",label:"Reels/Lines",group:"Attributes",visible:false,sortable:false},
+  {key:"theme",label:"Theme",group:"Attributes",visible:false,sortable:true},
+  {key:"release",label:"Release date",group:"Attributes",visible:false,sortable:true},
+  {key:"visible",label:"Visibility",group:"Core",visible:true,sortable:true},
+  {key:"maint",label:"Maintenance",group:"Core",visible:true,sortable:true},
+  {key:"editedBy",label:"Last edited by",group:"Audit",visible:false,sortable:true},
+  {key:"editedAt",label:"Last edited",group:"Audit",visible:false,sortable:true},
+  {key:"notes",label:"Internal notes",group:"Audit",visible:true,sortable:false,edit:"text"},
+];
+
+// default column widths (px); columns are resizable except _check / image / name
+const DEFAULT_W={_check:40,image:66,name:230,tags:250,provider:150,aggregator:160,kz:155,promo:175,type:155,rtp:95,daysSince:130,lastPlayed:130,bets:120,players:120,vol:115,maxWin:115,reels:120,theme:120,release:120,visible:95,maint:115,editedBy:130,editedAt:120,notes:200};
+const NO_RESIZE=new Set(["_check","image","name"]);
+COLUMNS.forEach(c=>c.width=DEFAULT_W[c.key]||140);
+
+/* ---------------- State ---------------- */
+let rows=[...DATA];
+let sortKey=null, sortDir=1;
+let page=0; const PER=10;
+const selected=new Set();
+
+/* ---------------- Filter dropdown init ---------------- */
+function fillSelect(id,arr,allLabel){
+  const el=document.getElementById(id);
+  el.innerHTML="<option value=''>"+(allLabel||"All")+"</option>"+arr.map(v=>`<option>${v}</option>`).join("");
+}
+fillSelect("f-provider",PROVIDERS);
+fillSelect("f-kz",KZCATS);
+fillSelect("f-promo",PROMOCATS);
+fillSelect("f-type",TYPES);
+fillSelect("f-vol",VOLS);
+fillSelect("f-tag",PRESET_TAGS);
+
+/* ---------------- Rendering ---------------- */
+function visibleCols(){return COLUMNS.filter(c=>c.visible);}
+
+function renderHead(){
+  const cg=document.getElementById("colgroup");
+  const tr=document.getElementById("head-row");
+  cg.innerHTML="";tr.innerHTML="";
+  visibleCols().forEach(c=>{
+    const col=document.createElement("col");
+    col.style.width=c.width+"px";
+    cg.appendChild(col);
+
+    const th=document.createElement("th");
+    if(c.key==="_check"){
+      th.className="col-checkbox sticky-l";th.style.left="0";
+      th.innerHTML="";
+    }else{
+      if(c.key==="name"){th.className="sticky-l";th.style.left=DEFAULT_W._check+"px";}
+      let ind="";
+      if(c.sortable){
+        th.classList.add("sortable");
+        th.onclick=(e)=>{ if(e.target.classList.contains("col-resizer"))return; doSort(c.key); };
+        ind = sortKey===c.key
+          ? `<span class="sort-ind active">${sortDir>0?"▲":"▼"}</span>`
+          : `<span class="sort-ind neutral">⇅</span>`;
+      }
+      th.innerHTML=c.label+ind;
+    }
+    if(!NO_RESIZE.has(c.key)){
+      const rz=document.createElement("span");rz.className="col-resizer";rz.title="Drag to resize";
+      rz.addEventListener("mousedown",e=>startResize(e,c,col));
+      th.appendChild(rz);
+    }
+    tr.appendChild(th);
+  });
+  setTableWidth();
+}
+function setTableWidth(){
+  const total=visibleCols().reduce((s,c)=>s+c.width,0);
+  document.getElementById("tbl").style.width=total+"px";
+}
+function startResize(e,c,colEl){
+  e.preventDefault();e.stopPropagation();
+  const startX=e.clientX, startW=c.width;
+  document.body.classList.add("resizing");
+  function move(ev){
+    const w=Math.max(60,Math.round(startW+(ev.clientX-startX)));
+    c.width=w; colEl.style.width=w+"px"; setTableWidth();
+  }
+  function up(){
+    document.body.classList.remove("resizing");
+    window.removeEventListener("mousemove",move);
+    window.removeEventListener("mouseup",up);
+  }
+  window.addEventListener("mousemove",move);
+  window.addEventListener("mouseup",up);
+}
+
+function cellHTML(r,c){
+  switch(c.key){
+    case "image":
+      return `<div class="img-cell"><span class="game-img"></span><span class="img-meta">${r.imgKB}KB / webp</span></div>`;
+    case "name":
+      return `<div class="gname">${r.name}</div><div class="gid">...${r.id.slice(-8)}</div>`;
+    case "tags":
+      return tagsHTML(r);
+    case "visible":
+      return `<span class="tg ${r.visible?'on':''}" data-toggle="visible" data-id="${r.id}"></span>`;
+    case "maint":
+      return `<span class="tg ${r.maint?'on':''}" data-toggle="maint" data-id="${r.id}"></span>`;
+    case "rtp":
+      return editText(r,c,r.rtp,"%");
+    case "maxWin":
+      return editText(r,c,r.maxWin,"x");
+    case "kz": case "promo":
+      return editSelect(r,c,r[c.key]);
+    case "notes":
+      return `<input class="notes-input" data-notes="${r.id}" placeholder="— add note" value="${r.notes.replace(/"/g,'&quot;')}">`;
+    case "daysSince":
+      const cls=r.daysSince>=150?'tag-dead':(r.daysSince<10?'tag-new':'');
+      return `<span class="num ${cls?'chip '+cls:''}" style="${cls?'':'padding:0'}">${r.daysSince}d</span>`;
+    case "rtp": break;
+    default:
+      const v=r[c.key];
+      return `<span class="${c.num?'num':''}">${v}</span>`;
+  }
+}
+function editText(r,c,val,suffix){
+  return `<span class="inline"><span class="inline-val ${c.num?'num':''}" data-edit="${c.key}" data-id="${r.id}">${val}${suffix?'<span class="muted"> '+suffix+'</span>':''}</span><span class="edit-pen" data-edit="${c.key}" data-id="${r.id}">✎</span></span>`;
+}
+function editSelect(r,c,val){
+  return `<span class="inline"><span class="inline-val" data-editsel="${c.key}" data-id="${r.id}">${val}</span><span class="edit-pen" data-editsel="${c.key}" data-id="${r.id}">✎</span></span>`;
+}
+function tagsHTML(r){
+  let h='<div class="tags-cell">';
+  r.tags.forEach(t=>{
+    h+=`<span class="chip ${TAG_CLASS[t]||''}">${t}<span class="x" data-rmtag="${t}" data-id="${r.id}">×</span></span>`;
+  });
+  r.suggested.forEach(t=>{
+    h+=`<span class="chip suggested" title="Auto-suggested by system">✨ ${t}<span class="ok" data-oktag="${t}" data-id="${r.id}">✓</span><span class="no" data-notag="${t}" data-id="${r.id}">×</span></span>`;
+  });
+  h+=`<span class="add-tag" data-addtag="${r.id}">+ tag</span></div>`;
+  return h;
+}
+
+function val(id){return document.getElementById(id).value;}
+function applyFilters(){
+  const name=val("f-name").trim().toLowerCase();
+  const prov=val("f-provider");
+  const kz=val("f-kz");
+  const promo=val("f-promo");
+  const toggles=val("f-toggles");
+  const imgtype=val("f-imgtype");
+  const imgmin=parseFloat(val("f-imgmin"));
+  const imgmax=parseFloat(val("f-imgmax"));
+  const type=val("f-type");
+  const tag=val("f-tag");
+  const vol=val("f-vol");
+  const played=val("f-played");
+  rows=DATA.filter(r=>{
+    if(name && !(r.name.toLowerCase().includes(name)||r.id.includes(name))) return false;
+    if(prov && r.provider!==prov) return false;
+    if(kz && r.kz!==kz) return false;
+    if(promo && r.promo!==promo) return false;
+    if(toggles==="vis-on" && !r.visible) return false;
+    if(toggles==="vis-off" && r.visible) return false;
+    if(toggles==="maint-on" && !r.maint) return false;
+    if(toggles==="maint-off" && r.maint) return false;
+    if(imgtype && imgtype!=="WEBP") return false; // all demo images are webp
+    if(!isNaN(imgmin) && parseFloat(r.imgKB)<imgmin) return false;
+    if(!isNaN(imgmax) && parseFloat(r.imgKB)>imgmax) return false;
+    if(type && r.type!==type) return false;
+    if(tag && !r.tags.includes(tag)) return false;
+    if(vol && r.vol!==vol) return false;
+    if(played==="dead" && r.daysSince<150) return false;
+    if(played==="stale" && !(r.daysSince>=30&&r.daysSince<150)) return false;
+    if(played==="active" && r.daysSince>=30) return false;
+    return true;
+  });
+  if(sortKey) sortRows();
+  page=0;
+  updateFilterCount();
+  render();
+}
+function sortRows(){
+  rows.sort((a,b)=>{
+    let x=a[sortKey],y=b[sortKey];
+    if(typeof x==="boolean"){x=x?1:0;y=y?1:0;}
+    if(typeof x==="string"&&!isNaN(parseFloat(x))&&isFinite(x)){x=parseFloat(x);y=parseFloat(y);}
+    if(x<y) return -1*sortDir; if(x>y) return 1*sortDir; return 0;
+  });
+}
+function doSort(key){
+  if(sortKey===key) sortDir*=-1; else {sortKey=key;sortDir=1;}
+  sortRows();render();
+}
+
+function render(){
+  renderHead();
+  const body=document.getElementById("body");
+  const start=page*PER;
+  const pageRows=rows.slice(start,start+PER);
+  body.innerHTML="";
+  pageRows.forEach(r=>{
+    const tr=document.createElement("tr");
+    if(selected.has(r.id)) tr.classList.add("selected");
+    visibleCols().forEach(c=>{
+      const td=document.createElement("td");
+      if(c.key==="_check"){
+        td.className="col-checkbox sticky-l";td.style.left="0";
+        td.innerHTML=`<input type="checkbox" class="check rowchk" data-id="${r.id}" ${selected.has(r.id)?'checked':''}>`;
+      }else{
+        if(c.key==="name"){td.className="sticky-l";td.style.left=DEFAULT_W._check+"px";}
+        td.innerHTML=cellHTML(r,c);
+      }
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+  // notes
+  document.getElementById("resultNote").textContent=rows.length+" games match";
+  const end=Math.min(start+PER,rows.length);
+  document.getElementById("rangeNote").textContent=`${rows.length?start+1:0}–${end} of ${rows.length}`;
+  updateSel();
+}
+
+/* ---------------- Inline edit interactions ---------------- */
+document.getElementById("body").addEventListener("click",e=>{
+  const t=e.target;
+  // text edit
+  const editKey=t.dataset.edit;
+  if(editKey){
+    const id=t.dataset.id;const r=DATA.find(x=>x.id===id);
+    const span=t.closest(".inline").querySelector(".inline-val");
+    const cur=String(r[editKey]);
+    const inp=document.createElement("input");
+    inp.className="inline-input";inp.value=cur;
+    span.replaceWith(inp);inp.focus();inp.select();
+    const commit=()=>{r[editKey]=inp.value;render();toast("Saved "+editKey+" → "+inp.value);};
+    inp.addEventListener("blur",commit);
+    inp.addEventListener("keydown",ev=>{if(ev.key==="Enter")inp.blur();if(ev.key==="Escape")render();});
+    return;
+  }
+  // select edit
+  const editSel=t.dataset.editsel;
+  if(editSel){
+    const id=t.dataset.id;const r=DATA.find(x=>x.id===id);
+    const col=COLUMNS.find(c=>c.key===editSel);
+    const span=t.closest(".inline").querySelector(".inline-val");
+    const sel=document.createElement("select");sel.className="cell-select";
+    sel.innerHTML=col.opts.map(o=>`<option ${o===r[editSel]?'selected':''}>${o}</option>`).join("");
+    span.replaceWith(sel);sel.focus();
+    sel.addEventListener("change",()=>{r[editSel]=sel.value;render();toast("Saved "+editSel+" → "+sel.value);});
+    sel.addEventListener("blur",()=>render());
+    return;
+  }
+  // toggle
+  if(t.dataset.toggle){
+    const r=DATA.find(x=>x.id===t.dataset.id);
+    r[t.dataset.toggle]=!r[t.dataset.toggle];render();
+    toast(t.dataset.toggle+" "+(r[t.dataset.toggle]?"ON":"OFF")+" — "+r.name);
+    return;
+  }
+  // remove tag
+  if(t.dataset.rmtag){
+    const r=DATA.find(x=>x.id===t.dataset.id);
+    r.tags=r.tags.filter(x=>x!==t.dataset.rmtag);render();return;
+  }
+  // confirm suggested
+  if(t.dataset.oktag){
+    const r=DATA.find(x=>x.id===t.dataset.id);
+    r.tags.push(t.dataset.oktag);r.suggested=r.suggested.filter(x=>x!==t.dataset.oktag);render();
+    toast("Tag added: "+t.dataset.oktag);return;
+  }
+  if(t.dataset.notag){
+    const r=DATA.find(x=>x.id===t.dataset.id);
+    r.suggested=r.suggested.filter(x=>x!==t.dataset.notag);render();return;
+  }
+  // add tag popover
+  if(t.dataset.addtag){
+    openTagPop(t,DATA.find(x=>x.id===t.dataset.addtag));return;
+  }
+});
+// notes commit
+document.getElementById("body").addEventListener("change",e=>{
+  if(e.target.dataset.notes){
+    const r=DATA.find(x=>x.id===e.target.dataset.notes);
+    r.notes=e.target.value;toast("Note saved");
+  }
+});
+// row checkbox
+document.getElementById("body").addEventListener("change",e=>{
+  if(e.target.classList.contains("rowchk")){
+    const id=e.target.dataset.id;
+    if(e.target.checked) selected.add(id); else selected.delete(id);
+    render();
+  }
+});
+
+/* ---------------- Tag popover ---------------- */
+let openPop=null;
+function closePop(){if(openPop){openPop.remove();openPop=null;}}
+document.addEventListener("click",e=>{
+  if(openPop && !openPop.contains(e.target) && !e.target.dataset.addtag && e.target.id!=="columnsBtn" && !e.target.dataset.act && e.target.id!=="bulkBtn") closePop();
+},true);
+
+function openTagPop(anchor,r){
+  closePop();
+  const pop=document.createElement("div");pop.className="pop";
+  const avail=PRESET_TAGS.filter(t=>!r.tags.includes(t));
+  pop.innerHTML=`<h4>Add tag to "${r.name}"</h4>
+    <input type="text" id="newtag" placeholder="Type a new tag + Enter">
+    <div class="sep"></div>
+    ${avail.map(t=>`<div class="row" data-pt="${t}"><span class="chip ${TAG_CLASS[t]||''}">${t}</span></div>`).join("")||'<div class="hint">All preset tags added.</div>'}`;
+  document.body.appendChild(pop);
+  place(pop,anchor);
+  openPop=pop;
+  pop.querySelectorAll("[data-pt]").forEach(el=>el.onclick=()=>{r.tags.push(el.dataset.pt);closePop();render();toast("Tag added: "+el.dataset.pt);});
+  const inp=pop.querySelector("#newtag");inp:inp.focus();
+  inp.addEventListener("keydown",ev=>{if(ev.key==="Enter"&&inp.value.trim()){r.tags.push(inp.value.trim().toLowerCase());closePop();render();toast("Custom tag added");}});
+}
+function place(pop,anchor){
+  const rc=anchor.getBoundingClientRect();
+  pop.style.top=(window.scrollY+rc.bottom+6)+"px";
+  let left=window.scrollX+rc.left;
+  if(left+pop.offsetWidth>window.innerWidth-10) left=window.innerWidth-pop.offsetWidth-10;
+  pop.style.left=left+"px";
+}
+
+/* ---------------- Columns popover ---------------- */
+document.getElementById("columnsBtn").addEventListener("click",e=>{
+  if(openPop){closePop();return;}
+  const pop=document.createElement("div");pop.className="pop";pop.style.minWidth="240px";pop.style.maxHeight="420px";pop.style.overflow="auto";
+  let groups={};COLUMNS.filter(c=>!c.fixed).forEach(c=>{(groups[c.group]=groups[c.group]||[]).push(c);});
+  let html=`<h4>Show / hide columns</h4>`;
+  for(const g in groups){
+    html+=`<div class="col-group-title">${g}</div>`;
+    groups[g].forEach(c=>{
+      html+=`<label class="col-toggle"><input type="checkbox" data-col="${c.key}" ${c.visible?'checked':''}> ${c.label}</label>`;
+    });
+  }
+  pop.innerHTML=html;
+  document.body.appendChild(pop);place(pop,e.currentTarget);openPop=pop;
+  pop.querySelectorAll("[data-col]").forEach(el=>el.onchange=()=>{
+    COLUMNS.find(c=>c.key===el.dataset.col).visible=el.checked;render();
+  });
+});
+
+/* ---------------- Selection / footer ---------------- */
+function updateSel(){
+  document.getElementById("selNote").textContent="Selected: "+selected.size;
+  document.getElementById("bulkCount").textContent=selected.size;
+  document.getElementById("bulkbar").classList.toggle("show",selected.size>0);
+}
+document.getElementById("selPage").addEventListener("change",e=>{
+  const start=page*PER;rows.slice(start,start+PER).forEach(r=>{e.target.checked?selected.add(r.id):selected.delete(r.id);});render();
+});
+document.getElementById("selAll").addEventListener("change",e=>{
+  rows.forEach(r=>{e.target.checked?selected.add(r.id):selected.delete(r.id);});render();
+});
+document.getElementById("bulkClear").addEventListener("click",()=>{selected.clear();document.getElementById("selPage").checked=false;document.getElementById("selAll").checked=false;render();});
+
+/* ---------------- Bulk operations ---------------- */
+function bulkApply(act){
+  const ids=[...selected];
+  if(!ids.length){toast("Select rows first");return;}
+  if(act==="vis"){ids.forEach(id=>DATA.find(r=>r.id===id).visible=true);toast(ids.length+" set Visible");}
+  if(act==="maint"){ids.forEach(id=>DATA.find(r=>r.id===id).maint=true);toast(ids.length+" set in Maintenance");}
+  if(act==="kz"){const v=prompt("Set KZ Game Category for "+ids.length+" games:",KZCATS[0]);if(v){ids.forEach(id=>DATA.find(r=>r.id===id).kz=v);toast("KZ category set");}}
+  if(act==="tag"){const v=prompt("Add tag to "+ids.length+" games (e.g. dead game):","dead game");if(v){ids.forEach(id=>{const r=DATA.find(x=>x.id===id);if(!r.tags.includes(v.trim()))r.tags.push(v.trim());});toast("Tag added to "+ids.length+" games");}}
+  render();
+}
+document.querySelectorAll(".bulkbar .b-btn").forEach(b=>b.onclick=()=>bulkApply(b.dataset.act));
+document.getElementById("bulkBtn").addEventListener("click",()=>{
+  if(!selected.size){toast("Select rows to enable batch operations");return;}
+  document.getElementById("bulkbar").classList.add("show");
+});
+
+/* ---------------- Filters wiring ---------------- */
+const SELECT_FILTERS=["f-provider","f-kz","f-promo","f-toggles","f-imgtype","f-type","f-tag","f-vol","f-played"];
+const TEXT_FILTERS=["f-name","f-imgmin","f-imgmax"];
+document.getElementById("searchBtn").addEventListener("click",applyFilters);
+TEXT_FILTERS.forEach(id=>document.getElementById(id).addEventListener("input",applyFilters));
+SELECT_FILTERS.forEach(id=>document.getElementById(id).addEventListener("change",applyFilters));
+document.getElementById("clearBtn").addEventListener("click",()=>{
+  [...TEXT_FILTERS,...SELECT_FILTERS].forEach(id=>document.getElementById(id).value="");
+  sortKey=null;applyFilters();
+});
+// 3-state filter panel: 0 = collapsed · 1 = default set · 2 = all filters
+let filterState=1;
+function setFilterState(s){
+  filterState=s;
+  const base=document.getElementById("baseFilters");
+  const extra=document.getElementById("extraFilters");
+  const actions=document.getElementById("filterActions");
+  const link=document.getElementById("toggleFilters");
+  base.style.display = s>=1 ? "grid" : "none";
+  extra.style.display = s>=2 ? "grid" : "none";
+  actions.style.display = s>=1 ? "flex" : "none";
+  link.innerHTML = s===0 ? "Expand Filters ⌄" : s===1 ? "Show all filters ⌄" : "Collapse Filters ⌃";
+}
+document.getElementById("toggleFilters").addEventListener("click",()=>{
+  setFilterState((filterState+1)%3); // collapsed → default → all → collapsed
+});
+
+function updateFilterCount(){
+  const ids=[...TEXT_FILTERS,...SELECT_FILTERS];
+  const n=ids.filter(id=>String(document.getElementById(id).value).trim()!=="").length;
+  const b=document.getElementById("filterCount");
+  b.textContent=n;b.classList.toggle("zero",n===0);
+}
+
+/* ---------------- Pager ---------------- */
+document.getElementById("prevPg").onclick=()=>{if(page>0){page--;render();}};
+document.getElementById("nextPg").onclick=()=>{if((page+1)*PER<rows.length){page++;render();}};
+
+/* ---------------- Toast ---------------- */
+let toastT;
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),1800);}
+
+/* ---------------- Tabs ---------------- */
+const VIEWS=["games","upload","bulkedit","audit"];
+document.getElementById("tabs").addEventListener("click",e=>{
+  const tab=e.target.closest("[data-tab]");if(!tab)return;
+  const name=tab.dataset.tab;
+  document.querySelectorAll("#tabs span").forEach(s=>s.classList.toggle("active",s.dataset.tab===name));
+  VIEWS.forEach(v=>document.getElementById("view-"+v).style.display=(v===name?"":"none"));
+  if(name==="audit") renderAudit();
+});
+
+/* ---------------- Audit log ---------------- */
+const AUDIT=[];
+function nowStr(){return "2026-06-30 12:0"+(AUDIT.length%10);}
+function logAudit(game,field,oldV,newV){
+  if(String(oldV)===String(newV))return;
+  AUDIT.unshift({time:nowStr(),user:"admin",game,field,old:oldV,nu:newV});
+}
+function renderAudit(){
+  const b=document.getElementById("audit-body");
+  if(!AUDIT.length){b.innerHTML='<tr><td colspan="5" style="padding:24px;color:var(--ink-faint);text-align:center">No changes logged yet in this session.</td></tr>';return;}
+  b.innerHTML=AUDIT.map(a=>`<tr><td>${a.time}</td><td>${a.user}</td><td>${a.game}</td><td><code>${a.field}</code></td><td><span class="muted">${a.old||'∅'}</span> → <b>${a.nu||'∅'}</b></td></tr>`).join("");
+}
+
+/* ---------------- CSV bulk edit ---------------- */
+const CSV_FIELDS=["gameId","name","rtp","maxWin","vol","theme","release","kz","promo","tags","notes","visible","maint"];
+function csvEscape(v){v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function rowToCsv(r){
+  return [r.id,r.name,r.rtp,r.maxWin,r.vol,r.theme,r.release,r.kz,r.promo,r.tags.join(";"),r.notes,r.visible,r.maint].map(csvEscape).join(",");
+}
+document.getElementById("dlTemplate").addEventListener("click",e=>{
+  e.preventDefault();
+  const csv=CSV_FIELDS.join(",")+"\n"+DATA.map(rowToCsv).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="game_data_template.csv";a.click();
+  toast("Template downloaded ("+DATA.length+" games)");
+});
+
+// minimal CSV parser (handles quoted fields)
+function parseCSV(text){
+  const rows=[];let i=0,field="",row=[],q=false;
+  while(i<text.length){const ch=text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){field+='"';i++;}else q=false;} else field+=ch; }
+    else{ if(ch==='"')q=true; else if(ch===","){row.push(field);field="";} else if(ch==="\n"||ch==="\r"){ if(ch==="\r"&&text[i+1]==="\n")i++; row.push(field);rows.push(row);row=[];field=""; } else field+=ch; }
+    i++;
+  }
+  if(field.length||row.length){row.push(field);rows.push(row);}
+  return rows.filter(r=>r.length>1||(r.length===1&&r[0].trim()!==""));
+}
+
+let pendingChanges=null;
+const dz=document.getElementById("dropzone"),csvFile=document.getElementById("csvFile");
+csvFile.addEventListener("change",()=>{if(csvFile.files[0])readCsv(csvFile.files[0]);});
+["dragover","dragenter"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag");}));
+["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag");}));
+dz.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)readCsv(f);});
+
+function readCsv(file){
+  const reader=new FileReader();
+  reader.onload=()=>{ try{buildPreview(reader.result);}catch(err){toast("Could not parse CSV");} };
+  reader.readAsText(file);
+}
+function buildPreview(text){
+  const rows=parseCSV(text);
+  if(rows.length<2){toast("CSV has no data rows");return;}
+  const header=rows[0].map(h=>h.trim());
+  const idIdx=header.indexOf("gameId");
+  if(idIdx<0){toast("Missing 'gameId' column");return;}
+  const editable=["rtp","maxWin","vol","theme","release","kz","promo","tags","notes","visible","maint"];
+  const changes=[];let skipped=0,matched=0;
+  for(let r=1;r<rows.length;r++){
+    const cells=rows[r];const id=(cells[idIdx]||"").trim();
+    const game=DATA.find(g=>g.id===id);
+    if(!game){skipped++;continue;}
+    matched++;
+    const diffs=[];
+    editable.forEach(f=>{
+      const ci=header.indexOf(f);if(ci<0)return;
+      let raw=(cells[ci]??"").trim();
+      if(raw==="")return; // blank = keep
+      let oldV,newV;
+      if(f==="tags"){oldV=game.tags.join(";");newV=raw;}
+      else if(f==="visible"||f==="maint"){oldV=String(game[f]);newV=(/^(true|1|yes|on)$/i.test(raw))?"true":"false";}
+      else{oldV=String(game[f]);newV=raw;}
+      if(oldV!==newV) diffs.push({field:f,old:oldV,nu:newV});
+    });
+    if(diffs.length) changes.push({id,name:game.name,diffs});
+  }
+  pendingChanges=changes;
+  // render preview
+  const head=document.getElementById("prev-head");
+  head.innerHTML="<th>Game</th><th>Field</th><th>Change</th>";
+  const body=document.getElementById("prev-body");
+  if(!changes.length){body.innerHTML='<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--ink-faint)">No changes detected (all values match current data).</td></tr>';}
+  else{
+    let html="";
+    changes.forEach(c=>{
+      c.diffs.forEach((d,k)=>{
+        html+=`<tr>${k===0?`<td rowspan="${c.diffs.length}"><div class="gname">${c.name}</div><div class="gid">...${c.id.slice(-8)}</div></td>`:""}`
+          +`<td><code>${d.field}</code></td><td><span class="chg"><span class="old">${d.old||'∅'}</span><span class="new">${d.nu||'∅'}</span></span></td></tr>`;
+      });
+    });
+    body.innerHTML=html;
+  }
+  const totalCells=changes.reduce((s,c)=>s+c.diffs.length,0);
+  document.getElementById("csvSummary").textContent=`— ${matched} matched · ${changes.length} games changed · ${totalCells} cells · ${skipped} unmatched skipped`;
+  document.getElementById("csvResult").style.display="block";
+}
+document.getElementById("applyCsv").addEventListener("click",()=>{
+  if(!pendingChanges||!pendingChanges.length){toast("No changes to apply");return;}
+  let n=0;
+  pendingChanges.forEach(c=>{
+    const g=DATA.find(x=>x.id===c.id);
+    c.diffs.forEach(d=>{
+      logAudit(g.name,d.field,d.old,d.nu);
+      if(d.field==="tags") g.tags=d.nu.split(";").map(s=>s.trim()).filter(Boolean);
+      else if(d.field==="visible"||d.field==="maint") g[d.field]=(d.nu==="true");
+      else g[d.field]=d.nu;
+      n++;
+    });
+  });
+  document.getElementById("csvResult").style.display="none";
+  csvFile.value="";pendingChanges=null;
+  applyFilters();
+  toast(n+" fields updated across "+ "games — see Audit tab");
+});
+document.getElementById("cancelCsv").addEventListener("click",()=>{
+  document.getElementById("csvResult").style.display="none";csvFile.value="";pendingChanges=null;
+});
+document.getElementById("exportBtn").addEventListener("click",()=>{
+  const csv=CSV_FIELDS.join(",")+"\n"+rows.map(rowToCsv).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="all_games_export.csv";a.click();
+  toast("Exported "+rows.length+" games");
+});
+
+/* ---------------- init ---------------- */
+setFilterState(1);   // default view = primary filter set
+updateFilterCount();
+render();
+</script>
+</body>
+</html>
