@@ -904,15 +904,23 @@ document.getElementById("nextPg").onclick=()=>{if((page+1)*PER<rows.length){page
 let toastT;
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),1800);}
 
-/* ---------------- Tabs ---------------- */
+/* ---------------- Tabs (hash-routed, each tab has its own shareable link) ---------------- */
 const VIEWS=["games","upload","bulkedit","audit"];
-document.getElementById("tabs").addEventListener("click",e=>{
-  const tab=e.target.closest("[data-tab]");if(!tab)return;
-  const name=tab.dataset.tab;
+function showTab(name,push){
+  if(!VIEWS.includes(name)) name="games";
   document.querySelectorAll("#tabs span").forEach(s=>s.classList.toggle("active",s.dataset.tab===name));
   VIEWS.forEach(v=>document.getElementById("view-"+v).style.display=(v===name?"":"none"));
   if(name==="audit") renderAudit();
+  const hash="#"+name;
+  if(push && location.hash!==hash) history.pushState(null,"",hash);
+}
+document.getElementById("tabs").addEventListener("click",e=>{
+  const tab=e.target.closest("[data-tab]");if(!tab)return;
+  showTab(tab.dataset.tab,true);
 });
+window.addEventListener("popstate",()=>showTab(location.hash.slice(1)));
+window.addEventListener("hashchange",()=>showTab(location.hash.slice(1)));
+showTab(location.hash.slice(1)||"games",false);
 
 /* ---------------- Audit log ---------------- */
 const AUDIT=[];
