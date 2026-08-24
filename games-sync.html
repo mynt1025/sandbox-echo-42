@@ -303,7 +303,7 @@
             <button class="btn" id="exportAuditBtn">⬇ Export .CSV</button>
           </div>
           <table style="min-width:auto"><thead><tr>
-            <th>Game Name</th><th>Game Aggregator</th><th>Game Provider</th><th>Game Code</th><th>Date Install</th><th>Game Category</th><th>Action Type</th>
+            <th>Game Name</th><th>Game Aggregator</th><th>Game Provider</th><th>Game Code</th><th>Date Install</th><th>Game Category</th><th>Action Type</th><th>Actor</th>
           </tr></thead>
           <tbody id="audit-body"></tbody></table>
         </div>
@@ -901,8 +901,9 @@ applyListFilters();
 
 /* ---------- audit log ---------- */
 const AUDIT=[];  // starts empty — every entry here is something you install/archive during this session
-function pushAuditRaw(name,aggregator,provider,code,category,status){
-  AUDIT.unshift({name,aggregator,provider,code,date:new Date().toISOString().slice(0,19).replace("T"," "),category,status});
+const CURRENT_ACTOR="Admin"; // the BO user driving this session — every action in this wireframe is manually triggered, there's no cron/system actor
+function pushAuditRaw(name,aggregator,provider,code,category,status,actor){
+  AUDIT.unshift({name,aggregator,provider,code,date:new Date().toISOString().slice(0,19).replace("T"," "),category,status,actor:actor||CURRENT_ACTOR});
 }
 function logAudit(g,status){
   pushAuditRaw(g.name,g.aggregator,g.provider,g.id,g.cat,status);
@@ -961,12 +962,13 @@ function renderAudit(){
     <td>${a.date}</td>
     <td>${a.category}</td>
     <td><b style="color:${a.status==='Installed'?'var(--green)':a.status==='Archived'?'var(--ink-faint)':'var(--red)'}">${a.status}</b></td>
-  </tr>`).join("") : `<tr><td colspan="7" class="empty">No activity matches the current filters.</td></tr>`;
+    <td>${a.actor||CURRENT_ACTOR}</td>
+  </tr>`).join("") : `<tr><td colspan="8" class="empty">No activity matches the current filters.</td></tr>`;
 }
 document.getElementById("exportAuditBtn").addEventListener("click",()=>{
   const sorted=[...auditRows].sort((a,b)=>b.date.localeCompare(a.date));
-  const header=["Game Name","Game Aggregator","Game Provider","Game Code","Date Install","Game Category","Action Type"];
-  const csv=[header.join(","),...sorted.map(a=>[a.name,a.aggregator,a.provider,a.code,a.date,a.category,a.status].map(csvEscape).join(","))].join("\n");
+  const header=["Game Name","Game Aggregator","Game Provider","Game Code","Date Install","Game Category","Action Type","Actor"];
+  const csv=[header.join(","),...sorted.map(a=>[a.name,a.aggregator,a.provider,a.code,a.date,a.category,a.status,a.actor||CURRENT_ACTOR].map(csvEscape).join(","))].join("\n");
   const blob=new Blob([csv],{type:"text/csv"});
   const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="games_sync_audit.csv";link.click();
   toast("Exported "+sorted.length+" audit records");
@@ -977,6 +979,7 @@ fillAuditProviderSelect();
 const VIEWS=["list","details","audit"];
 function showTab(name,push){
   if(!VIEWS.includes(name)) name="details";
+  document.getElementById("view-installcheck").style.display="none"; // clicking any tab directly always leaves the install-check page
   document.querySelectorAll("#tabs span").forEach(s=>s.classList.toggle("active",s.dataset.tab===name));
   VIEWS.forEach(v=>document.getElementById("view-"+v).style.display=(v===name?"":"none"));
   if(name==="audit") applyAuditFilters();
