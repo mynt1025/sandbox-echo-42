@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BIRCH — Games Sync — WIREFRAME</title>
+<style>
+  :root{
+    --bg:#f3f4f8; --panel:#fff; --ink:#1f2430; --ink-soft:#6b7280; --ink-faint:#9aa1ad;
+    --line:#e8eaf0; --line-soft:#f0f1f6; --accent:#6d5bf0; --accent-soft:#efeafe; --accent-2:#8a7bf5;
+    --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --chip:#eef0f6; --radius:10px;
+    --shadow:0 1px 2px rgba(20,20,40,.04),0 4px 16px rgba(20,20,40,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.4}
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:210px;background:#fbfbfe;border-right:1px solid var(--line);flex:0 0 210px;padding:14px 0;display:flex;flex-direction:column}
+  .brand{display:flex;align-items:center;gap:8px;padding:0 18px 16px;font-weight:700;color:var(--accent);font-size:15px}
+  .brand .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#ff5fa2,#6d5bf0)}
+  .group-pill{margin:0 14px 14px;display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--ink-soft)}
+  .group-pill .sw{background:var(--accent);color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;cursor:pointer}
+  .nav-sec{padding:8px 14px 2px;color:var(--ink-faint);font-size:11px;text-transform:uppercase;letter-spacing:.4px;margin-top:6px;cursor:pointer;user-select:none}
+  .nav a{display:block;padding:8px 14px 8px 26px;color:var(--ink-soft);text-decoration:none;font-size:12.5px;cursor:pointer}
+  .nav a:hover{background:var(--line-soft)}
+  .nav a.active{background:var(--accent);color:#fff;margin:0 10px;border-radius:8px;padding-left:16px;font-weight:600}
+  .sb-foot{margin-top:auto;padding:10px 18px;color:var(--ink-faint);font-size:10.5px}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{height:48px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 22px;background:#fff;color:var(--ink-soft);font-size:12px}
+  .avatar{width:26px;height:26px;border-radius:50%;background:#cfd3de}
+  .content{padding:18px 22px 8px;flex:1;min-width:0}
+  .crumb{display:flex;align-items:center;gap:8px;color:var(--ink-soft);font-size:13px;margin-bottom:10px}
+  .crumb b{color:var(--ink)}
+  .tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-bottom:16px}
+  .tabs span{padding:8px 0;color:var(--ink-soft);cursor:pointer;font-size:13px;border-bottom:2px solid transparent}
+  .tabs span.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font-size:12.5px;cursor:pointer;color:var(--ink)}
+  .btn:hover{border-color:#d7d9e3;background:#fafaff}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:#5d4cdd}
+  .btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn.dark:hover{background:#333}
+  .btn.block{width:100%;margin-bottom:10px}
+  .btn:disabled{opacity:.6;cursor:default}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .mockup-banner{background:#fff6dd;border:1px solid #f3dca0;color:#8a6d1a;border-radius:8px;padding:6px 12px;font-size:12px;margin-bottom:14px}
+
+  /* Details layout: left panel + right panel */
+  .details-grid{display:grid;grid-template-columns:280px 1fr;gap:18px;align-items:start}
+  .panel{padding:18px}
+  .panel h4{margin:0 0 10px;font-size:13px;font-weight:600}
+  select,input{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;background:#fff;color:var(--ink);outline:none}
+  select:focus,input:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px var(--accent-soft)}
+  .stat-list{margin-top:14px}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+  .stat-row:last-child{border:none}
+  .stat-row b{font-variant-numeric:tabular-nums;font-size:13px}
+  .stat-row .new{color:var(--red)}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);display:inline-block;margin-right:6px}
+  .sync-foot{text-align:center;color:var(--ink-faint);font-size:11.5px;margin-top:12px}
+
+  .filters{padding:14px 18px;margin-bottom:14px}
+  .filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 18px}
+  .field label{display:block;font-size:12px;margin-bottom:6px;font-weight:500}
+  .range{display:flex;align-items:center;gap:6px}
+  .filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:14px}
+  .link{color:var(--ink-soft);cursor:pointer;font-size:12.5px}
+  .link:hover{color:var(--ink)}
+
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow)}
+  table{border-collapse:separate;border-spacing:0;width:100%;min-width:960px}
+  thead th{text-align:left;font-weight:600;color:var(--ink-soft);font-size:11.5px;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td{padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:middle;font-size:12.5px;white-space:nowrap}
+  tbody tr:hover{background:#fafaff}
+  tbody tr.selected{background:var(--accent-soft)}
+  .col-checkbox{width:38px;text-align:center}
+  .game-img{width:34px;height:34px;border-radius:7px;display:inline-block}
+  .gname{font-weight:600;color:var(--ink)}
+  .gid{font-size:11px;color:var(--ink-faint)}
+  .status{font-weight:600}
+  .status.new{color:var(--red)}
+  .status.installed{color:var(--ink-faint)}
+  .status.expired{color:var(--amber)}
+  .status.archived{color:var(--ink-faint);font-style:italic}
+  .eye{cursor:pointer;color:var(--ink-soft)}
+  .eye:hover{color:var(--accent)}
+  .table-foot{display:flex;align-items:center;justify-content:flex-end;padding:12px 16px;color:var(--ink-soft);font-size:12px}
+  .pager{display:flex;align-items:center;gap:8px}
+  .pager .pg{border:1px solid var(--line);background:#fff;border-radius:7px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .count-note{color:var(--ink-soft);font-size:12px}
+
+  .bulkbar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;display:none;align-items:center;gap:14px;box-shadow:0 10px 40px rgba(0,0,0,.3);z-index:60}
+  .bulkbar.show{display:flex}
+  .bulkbar .b-btn{background:var(--accent);border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:12.5px;cursor:pointer}
+  .bulkbar .b-clear{cursor:pointer;color:#c9c9d6}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:12.5px;z-index:80;opacity:0;transition:.2s;pointer-events:none}
+  .toast.show{opacity:1}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(20,20,30,.4);display:none;align-items:center;justify-content:center;z-index:90}
+  .modal-bg.show{display:flex}
+  .modal{background:#fff;border-radius:10px;width:480px;max-width:90vw;max-height:80vh;overflow:auto;padding:18px}
+  .modal h4{margin:0 0 10px}
+  .modal pre{background:var(--line-soft);border-radius:8px;padding:12px;font-size:11.5px;overflow:auto}
+  .modal .close{float:right;cursor:pointer;color:var(--ink-soft)}
+  /* Install All validation check */
+  .banner{flex:1;border-radius:8px;padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:8px}
+  .banner-warn{background:#fff6dd;border:1px solid #f3dca0;color:#8a6d1a}
+  .banner-err{background:#fde8e8;border:1px solid #f3b4b4;color:#c0392b}
+  .banner-ok{background:#e6f7ec;border:1px solid #b6e6c8;color:#1f7a4c}
+  .ic-err{color:var(--red);font-size:11px;margin-top:4px;max-width:230px;line-height:1.3}
+  .tg{width:34px;height:18px;border-radius:20px;background:#cdd0db;position:relative;cursor:pointer;transition:.15s;display:inline-block}
+  .tg::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.15s}
+  .tg.on{background:var(--accent)}
+  .tg.on::after{left:18px}
+
+  /* List view: chip filter field + popover + sortable header */
+  .chipfield{border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-height:36px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:pointer;background:#fff}
+  .chipfield:hover{border-color:#d7d9e3}
+  .cf-placeholder{color:var(--ink-faint);font-size:12.5px}
+  .fchip{display:inline-flex;align-items:center;gap:6px;background:var(--chip);color:#444b5a;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:500;white-space:nowrap}
+  .fchip .x{cursor:pointer;color:#9aa1ad;font-weight:700}
+  .fchip .x:hover{color:var(--red)}
+  .pop{position:absolute;z-index:50;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 30px rgba(20,20,40,.16);padding:10px;min-width:200px}
+  .pop .row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:12.5px}
+  .pop .row:hover{background:var(--line-soft)}
+  .pop .row input{width:auto}
+  thead th.sortable{cursor:pointer}
+  thead th.sortable:hover{color:var(--ink)}
+  .sort-ind{margin-left:4px;font-size:10px;color:#c2c7d2}
+  .sort-ind.active{color:var(--accent)}
+  .chev{cursor:pointer;color:var(--ink-faint)}
+  .chev:hover{color:var(--accent)}
+  .yn-yes{color:var(--ink)}
+  .yn-no{color:var(--ink-faint)}
+
+  .empty{padding:40px;text-align:center;color:var(--ink-faint)}
+  code{background:var(--line-soft);border-radius:4px;padding:1px 5px;font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo"></span> BIRCH</div>
+    <div class="group-pill"><span>Group</span><span class="sw">Switch</span></div>
+    <div class="nav-sec">▸ Finance</div>
+    <div class="nav-sec">▸ Players</div>
+    <div class="nav-sec">▾ Games</div>
+    <nav class="nav">
+      <a>Game Providers</a>
+      <a>All Games</a>
+      <a>Provider Game Ranking</a>
+      <a>Game Categories</a>
+      <a class="active">Games Sync</a>
+      <a>Game Statistics Report</a>
+    </nav>
+    <div class="sb-foot">Birch V20260811FCE191B</div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <span>(GMT+7) <span id="clock"></span> ▾</span>
+      <span>⬇</span>
+      <span>🔔<sup style="color:var(--red)">2</sup></span>
+      <span class="avatar"></span>
+    </div>
+    <div class="content">
+      <div class="crumb">🎮 Games <span>›</span> <b>Games Sync</b></div>
+      <div class="mockup-banner">🧪 <b>WIREFRAME</b> — replica of the existing Games Sync screen, placeholder data. This is the baseline we'll build the new feature on top of next.</div>
+
+      <div class="tabs" id="tabs">
+        <span data-tab="list">List</span>
+        <span class="active" data-tab="details">Details</span>
+        <span data-tab="audit">Audit</span>
+      </div>
+
+      <!-- ================= LIST VIEW ================= -->
+      <div id="view-list" class="view" style="display:none">
+        <div class="card filters" id="list-filters-card">
+          <div class="filter-grid" style="grid-template-columns:260px 320px 1fr;align-items:end" id="list-filter-row">
+            <div class="field"><label>Game Provider</label><select id="lf-provider"><option value="">All</option></select></div>
+            <div class="field">
+              <label>Visibility/Maintenance</label>
+              <div class="chipfield" id="lf-vmfield"><span class="cf-placeholder" id="lf-vmplaceholder">All</span></div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;align-items:center;gap:16px">
+              <span class="link" id="lf-collapse">Collapse Filters ⌃</span>
+              <span class="link" id="lf-clear">Clear</span>
+              <button class="btn dark" id="lf-search">Search</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div style="display:flex;gap:10px">
+            <button class="btn primary" id="listInstallAllBtn">⚡ Install All</button>
+            <button class="btn dark" id="listArchiveAllBtn">🗄 Archive All</button>
+          </div>
+          <span class="count-note">Applies to all providers, ignoring the filters above</span>
+        </div>
+        <div class="table-wrap">
+          <table style="min-width:1000px">
+            <thead><tr>
+              <th>Provider Aggregator Name</th>
+              <th>Game Provider</th>
+              <th>Visibility</th>
+              <th>Maintenance</th>
+              <th class="sortable" id="lh-new">New Games <span class="sort-ind" id="lh-new-ind">⇕</span></th>
+              <th>Expired Games</th>
+              <th>Installed Games</th>
+              <th>Total Games</th>
+              <th>Last Sync</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="list-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= DETAILS VIEW ================= -->
+      <div id="view-details" class="view">
+        <div class="details-grid">
+          <!-- left panel -->
+          <div class="card panel">
+            <h4>Game Provider</h4>
+            <select id="providerSel"></select>
+            <button class="btn dark block" style="margin-top:14px" id="loadPrevBtn">Load Previous Sync</button>
+            <button class="btn primary block" id="runSyncBtn">Run New Sync</button>
+            <div class="stat-list">
+              <div class="stat-row"><span>Total Provider Games</span><b id="st-total">-</b></div>
+              <div class="stat-row"><span><span class="dot"></span>Installed Games</span><b id="st-installed">-</b></div>
+              <div class="stat-row"><span><span class="dot"></span>New Games</span><b class="new" id="st-new">-</b></div>
+              <div class="stat-row"><span><span class="dot"></span>Expired Games</span><b id="st-expired">-</b></div>
+            </div>
+            <div class="sync-foot">Last Sync<br><b id="st-lastsync" style="color:var(--ink)">-</b></div>
+          </div>
+
+          <!-- right panel -->
+          <div>
+            <div class="card filters">
+              <div class="filter-grid">
+                <div class="field"><label>Game Name/ID</label><input id="f-name" placeholder="e.g. Fortune Rabbit"></div>
+                <div class="field"><label>Status</label><select id="f-status"><option value="">All</option><option>New</option><option>Installed</option><option>Expired</option><option>Archived</option></select></div>
+                <div class="field"><label>Image Type</label><select id="f-imgtype"><option value="">All</option><option>WEBP</option><option>PNG</option><option>JPG</option></select></div>
+                <div class="field"><label>Image Size (Min. - Max.)</label>
+                  <div class="range"><input id="f-min" type="number" placeholder="KB"><span class="muted">-</span><input id="f-max" type="number" placeholder="KB"></div>
+                </div>
+              </div>
+              <div class="filter-actions">
+                <span class="link" id="clearBtn">↻ Clear</span>
+                <button class="btn primary" id="searchBtn">Search</button>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div style="display:flex;gap:10px">
+                <button class="btn primary" id="installAllBtn">⚡ Install All</button>
+                <button class="btn dark" id="archiveAllBtn">🗄 Archive All</button>
+              </div>
+              <span class="count-note" id="resultNote"></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th class="col-checkbox"><input type="checkbox" id="selAll"></th>
+                  <th>Image</th><th>Game Name/ID</th><th>Provider</th><th>Status</th>
+                  <th>Provider Game Type</th><th>Provider Category</th><th>Raw Data</th><th></th>
+                </tr></thead>
+                <tbody id="tbl-body"></tbody>
+              </table>
+            </div>
+            <div class="table-foot">
+              <div class="pager">
+                <span id="rangeNote"></span>
+                <span class="pg" id="prevPg">‹</span>
+                <span class="pg" id="nextPg">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= AUDIT VIEW ================= -->
+      <div id="view-audit" class="view" style="display:none">
+        <div class="card filters">
+          <div class="filter-grid" style="grid-template-columns:1fr 1fr 1.6fr" id="audit-filter-row">
+            <div class="field"><label>Game Provider</label><select id="af-provider"><option value="">All</option></select></div>
+            <div class="field"><label>Action Type</label><select id="af-action"><option value="">All</option><option value="Installed">Install</option><option value="Archived">Archive</option></select></div>
+            <div class="field"><label>Date &amp; Time</label>
+              <div class="range"><input type="datetime-local" id="af-from"><span class="muted">–</span><input type="datetime-local" id="af-to"></div>
+            </div>
+          </div>
+          <div class="filter-actions">
+            <span class="link" id="af-collapse">Collapse Filters ⌃</span>
+            <span class="link" id="af-clear">Clear</span>
+            <button class="btn dark" id="af-search">Search</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)">
+            <b>Install Audit Log</b>
+            <button class="btn" id="exportAuditBtn">⬇ Export .CSV</button>
+          </div>
+          <table style="min-width:auto"><thead><tr>
+            <th>Game Name</th><th>Game Aggregator</th><th>Game Provider</th><th>Game Code</th><th>Date Install</th><th>Game Category</th><th>Action Type</th>
+          </tr></thead>
+          <tbody id="audit-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ================= INSTALL CHECK PAGE (not a tab — entered via any "Install All" button, exited via Back) ================= -->
+      <div id="view-installcheck" class="view" style="display:none">
+        <div class="card" style="padding:20px 22px;margin-bottom:14px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+            <div>
+              <h4 id="ic-title" style="margin:0 0 4px;font-size:18px">Install All — Validation Check</h4>
+              <p class="muted" id="ic-desc" style="margin:0;font-size:12.5px;max-width:560px">Please check the defaults below. KZ Game Category is validated against our preset labels (SLOTS, FISH, LIVE, ARCADE, CRASH) — anything unrecognized defaults to SLOTS and is flagged in red.</p>
+            </div>
+            <div style="display:flex;gap:10px;flex:0 0 auto">
+              <button class="btn" id="icExportBtn">⬇ Export .CSV</button>
+              <button class="btn" id="icStartOverBtn">↺ Start Over</button>
+              <button class="btn primary" id="icProceedBtn">⚡ Proceed &amp; Skip Errors</button>
+              <button class="btn" id="icBackBtn" style="display:none">← Back</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin:14px 0 0">
+            <div class="banner banner-warn" id="ic-warnbanner">⚠ Review carefully — installed games go live immediately in this session.</div>
+            <div class="banner banner-err" id="ic-errbanner" style="display:none">⚠ Validation errors: <b id="ic-errbanner-count">0</b></div>
+            <div class="banner banner-ok" id="ic-okbanner" style="display:none">✓ Installed <b id="ic-okcount">0</b> game(s) — export the log below, or go back.</div>
+          </div>
+        </div>
+        <div style="text-align:right;color:var(--ink-soft);font-size:12.5px;margin-bottom:8px">
+          Total: <b id="ic-total">0</b>&nbsp;&nbsp;&nbsp;Errors: <b id="ic-errors" style="color:var(--red)">0</b>&nbsp;&nbsp;&nbsp;Ready: <b id="ic-ready" style="color:var(--green)">0</b>
+        </div>
+        <div class="table-wrap">
+          <table style="min-width:940px"><thead><tr>
+            <th>Icon</th><th>Game Name/ID</th><th>Provider</th><th>KZ Game Category</th><th>Maintenance</th><th>Promo Blacklist</th><th>Visibility</th><th>Untested</th><th>Status</th>
+          </tr></thead><tbody id="ic-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bulkbar" id="bulkbar">
+  <span><b id="bulkCount">0</b> selected</span>
+  <button class="b-btn" id="bulkInstall">Install selected</button>
+  <span class="b-clear" id="bulkClear">Clear</span>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modalBg"><div class="modal">
+  <span class="close" id="modalClose">✕</span>
+  <h4 id="modalTitle">Raw Data</h4>
+  <pre id="modalBody"></pre>
+</div></div>
+
+<script>
+document.getElementById("clock").textContent=new Date().toISOString().slice(0,16).replace("T"," ");
+
+/* ---------- placeholder data ----------
+   Single source of truth: 5 providers, each with its own game list (status = New/Installed/Expired).
+   The List tab is always derived from this same data (see deriveProviderList), so List and Details never drift apart. */
+const PROVIDERS={
+  "amb: Fachai":{agg:"Amb",provider:"Fachai",vis:true,maint:false,lastSync:"2026-08-23 06:00:01",games:[
+    ["Fortune Rabbit","22886","New","-","SLOTS"],
+    ["Super Elements 2","22898","New","-","-"],
+    ["Super Color Game","27007","New","-","SLOT"],
+    ["Fortune Tiger","22910","New","-","FISH"],
+    ["MERGE MAGIC","22045","Installed","-","-"],
+    ["GLORY OF ROME","22038","Installed","-","-"],
+    ["ROBIN HOOD","22039","Installed","-","-"],
+    ["Dragon Hatch","22811","Installed","-","-"],
+    ["Ganesha Gold","22770","Installed","-","-"],
+    ["Mahjong Ways","22760","Installed","-","-"],
+    ["Wild Bandito","22820","Expired","-","-"],
+    ["Muay Thai Champion","22712","Expired","-","-"],
+  ]},
+  "amb: PG Soft":{agg:"Amb",provider:"PG Soft",vis:false,maint:true,lastSync:"2026-08-23 06:00:01",games:[
+    ["Treasures of Aztec","41120","New","-","-"],
+    ["Wild Bounty Showdown","41200","New","-","SLOTS"],
+    ["Mahjong Ways 2","41005","Installed","-","-"],
+    ["Lucky Neko","41090","Installed","-","-"],
+    ["Phoenix Rises","41210","Installed","-","-"],
+    ["Dreams of Macau","41220","Installed","-","-"],
+    ["Candy Burst","41250","Installed","-","-"],
+    ["Big Bass Splash","41230","Expired","-","-"],
+    ["Legendary Monkey King","41240","Expired","-","-"],
+  ]},
+  "amb: Spade Gaming":{agg:"Amb",provider:"Spade Gaming",vis:true,maint:false,lastSync:"2026-08-23 06:00:02",games:[
+    ["Fortune Gems","51001","New","-","SLOTS"],
+    ["Fortune Gems 2","51002","New","-","-"],
+    ["Fortune Ox","51003","New","-","ARCADE"],
+    ["Neko Fortune","51010","New","-","TABLE"],
+    ["Crazy Hunter","51004","Installed","-","-"],
+    ["Muay Thai Warrior","51005","Installed","-","-"],
+    ["Fortune Dragon","51006","Installed","-","-"],
+    ["Bomb Bomb 2","51007","Installed","-","-"],
+    ["Speed Winner","51008","Installed","-","-"],
+    ["Legend of Perseus","51009","Expired","-","-"],
+  ]},
+  "ss: Pragmatic Play Direct":{agg:"SS",provider:"Pragmatic Play Direct",vis:true,maint:false,lastSync:"2026-08-23 06:00:02",games:[
+    ["Sugar Rush 1000","31090","New","-","SLOTS"],
+    ["Wanted Dead or a Wild","31112","New","-","-"],
+    ["Gates of Olympus 1000","31201","New","-","SLOTS"],
+    ["Sweet Bonanza 1000","31230","New","-","LIVE"],
+    ["Ninja vs Samurai","31280","New","-","-"],
+    ["Gates of Olympus","31001","Installed","-","-"],
+    ["Sweet Bonanza","31002","Installed","-","-"],
+    ["Big Bass Bonanza","31200","Installed","-","-"],
+    ["The Dog House","31210","Installed","-","-"],
+    ["Starlight Princess 1000","31220","Installed","-","-"],
+    ["Wild West Gold","31240","Installed","-","-"],
+    ["Fruit Party 2","31250","Installed","-","-"],
+    ["Gems Bonanza","31290","Installed","-","-"],
+    ["Buffalo King Megaways","31300","Installed","-","-"],
+    ["Madame Destiny Megaways","31260","Expired","-","-"],
+    ["The Wild Machine","31270","Expired","-","-"],
+  ]},
+  "ss: Jili":{agg:"SS",provider:"Jili",vis:true,maint:false,lastSync:"2026-08-23 06:00:03",games:[
+    ["Fortune Gems 3","61003","New","-","CRASH"],
+    ["Mahjong Ways 3","61008","New","-","-"],
+    ["Golden Empire","61001","Installed","-","-"],
+    ["Boxing King","61002","Installed","-","-"],
+    ["Charge Buffalo","61004","Installed","-","-"],
+    ["Super Ace","61006","Installed","-","-"],
+    ["Crazy Pusher","61010","Installed","-","-"],
+    ["Bonus Hunter","61005","Expired","-","-"],
+    ["Money Coming","61007","Expired","-","-"],
+    ["Jungle King","61009","Expired","-","-"],
+  ]},
+};
+let curProvider="amb: Fachai";
+let DATA=[]; // active game rows {img,name,id,provider,status,type,cat,_src}
+let rows=[];
+let page=0; const PER=6;
+const selected=new Set();
+let lastSyncTime=PROVIDERS[curProvider].lastSync;
+
+function setStatus(g,status){
+  g.status=status;
+  if(g._src) g._src[2]=status; // write through to the underlying provider record so the List tab stays in sync
+}
+function loadProvider(key){
+  curProvider=key;
+  const p=PROVIDERS[key];
+  DATA=p.games.map((g,i)=>({
+    img:i, name:g[0], id:g[1], provider:p.provider, aggregator:p.agg.toLowerCase(), status:g[2], type:g[3], cat:g[4],
+    imgKB:(8+(i*7)%40).toFixed(2), _src:g
+  }));
+  selected.clear();
+  applyFilters();
+  updateStats();
+}
+function updateStats(){
+  const installed=DATA.filter(g=>g.status==="Installed").length;
+  const news=DATA.filter(g=>g.status==="New").length;
+  const expired=DATA.filter(g=>g.status==="Expired"||g.status==="Archived").length;
+  document.getElementById("st-total").textContent=DATA.length;
+  document.getElementById("st-installed").textContent=installed;
+  document.getElementById("st-new").textContent=news;
+  document.getElementById("st-expired").textContent=expired;
+  document.getElementById("st-lastsync").textContent=lastSyncTime;
+}
+
+const sel=document.getElementById("providerSel");
+Object.keys(PROVIDERS).forEach(name=>{
+  const o=document.createElement("option");o.value=name;o.textContent=name;sel.appendChild(o);
+});
+sel.addEventListener("change",()=>loadProvider(sel.value));
+
+/* ---------- filters ---------- */
+function applyFilters(){
+  const name=document.getElementById("f-name").value.trim().toLowerCase();
+  const status=document.getElementById("f-status").value;
+  const min=parseFloat(document.getElementById("f-min").value);
+  const max=parseFloat(document.getElementById("f-max").value);
+  rows=DATA.filter(g=>{
+    if(name && !(g.name.toLowerCase().includes(name)||g.id.includes(name))) return false;
+    if(status && g.status!==status) return false;
+    if(!isNaN(min) && parseFloat(g.imgKB)<min) return false;
+    if(!isNaN(max) && parseFloat(g.imgKB)>max) return false;
+    return true;
+  });
+  page=0;render();
+}
+document.getElementById("searchBtn").onclick=applyFilters;
+document.getElementById("clearBtn").onclick=()=>{
+  ["f-name","f-status","f-imgtype","f-min","f-max"].forEach(id=>document.getElementById(id).value="");
+  applyFilters();
+};
+
+/* ---------- render table ---------- */
+const GRAD=["135deg,#ff5fa2,#6d5bf0","135deg,#f59e0b,#ef4444","135deg,#22c55e,#0891b2","135deg,#8a7bf5,#3a2f6b","135deg,#f472b6,#a855f7","135deg,#38bdf8,#6366f1"];
+function render(){
+  const body=document.getElementById("tbl-body");
+  const start=page*PER;
+  const pageRows=rows.slice(start,start+PER);
+  body.innerHTML="";
+  pageRows.forEach(g=>{
+    const tr=document.createElement("tr");
+    if(selected.has(g.id)) tr.classList.add("selected");
+    tr.innerHTML=`
+      <td class="col-checkbox"><input type="checkbox" class="rowchk" data-id="${g.id}" ${selected.has(g.id)?'checked':''}></td>
+      <td><span class="game-img" style="background:linear-gradient(${GRAD[g.img%GRAD.length]})"></span></td>
+      <td><div class="gname">${g.name}</div><div class="gid">${g.id}</div></td>
+      <td>${g.provider}</td>
+      <td><span class="status ${g.status.toLowerCase()}">${g.status}</span></td>
+      <td>${g.type}</td>
+      <td>${g.cat}</td>
+      <td><span class="eye" data-raw="${g.id}">👁</span></td>
+      <td>${g.status==="New"?`<button class="btn primary" data-install="${g.id}">Install</button>`:""}</td>
+    `;
+    body.appendChild(tr);
+  });
+  document.getElementById("resultNote").textContent=rows.length+" games";
+  const end=Math.min(start+PER,rows.length);
+  document.getElementById("rangeNote").textContent=`${rows.length?start+1:0}–${end} of ${rows.length}`;
+  updateSel();
+}
+document.getElementById("prevPg").onclick=()=>{if(page>0){page--;render();}};
+document.getElementById("nextPg").onclick=()=>{if((page+1)*PER<rows.length){page++;render();}};
+
+document.getElementById("tbl-body").addEventListener("click",e=>{
+  const t=e.target;
+  if(t.dataset.install){ installGame(t.dataset.install); return; }
+  if(t.dataset.raw){ openRaw(t.dataset.raw); return; }
+});
+document.getElementById("tbl-body").addEventListener("change",e=>{
+  if(e.target.classList.contains("rowchk")){
+    const id=e.target.dataset.id;
+    e.target.checked?selected.add(id):selected.delete(id);
+    updateSel();
+  }
+});
+document.getElementById("selAll").addEventListener("change",e=>{
+  rows.forEach(g=>{e.target.checked?selected.add(g.id):selected.delete(g.id);});
+  render();
+});
+function updateSel(){
+  document.getElementById("bulkCount").textContent=selected.size;
+  document.getElementById("bulkbar").classList.toggle("show",selected.size>0);
+}
+document.getElementById("bulkClear").onclick=()=>{selected.clear();document.getElementById("selAll").checked=false;render();};
+document.getElementById("bulkInstall").onclick=()=>{
+  let n=0;
+  [...selected].forEach(id=>{const g=DATA.find(x=>x.id===id);if(g&&g.status==="New"){installOne(g);n++;}});
+  selected.clear();
+  toast(n+" game(s) installed");
+  applyFilters();updateStats();refreshListData();
+};
+function installGame(id){
+  const g=DATA.find(x=>x.id===id);
+  if(g){installOne(g);toast(g.name+" installed");applyFilters();updateStats();refreshListData();}
+}
+function installOne(g){
+  setStatus(g,"Installed");
+  logAudit(g,"Installed");
+}
+function archiveOne(g){
+  setStatus(g,"Archived");
+  logAudit(g,"Archived");
+}
+// Install All (Details tab) — apply only to the games currently visible under the active filters, for the selected provider. Goes through the validation check modal first.
+document.getElementById("installAllBtn").addEventListener("click",()=>{
+  const targets=rows.filter(g=>g.status==="New");
+  if(!targets.length){toast("No games ready to install");return;}
+  openInstallCheck(targets,()=>{ applyFilters();updateStats();refreshListData(); });
+});
+// Archive All (Details tab) — instant, no validation step.
+document.getElementById("archiveAllBtn").addEventListener("click",()=>{
+  const targets=rows.filter(g=>g.status==="Installed");
+  if(!targets.length){toast("No installed games to archive");return;}
+  targets.forEach(archiveOne);
+  toast(targets.length+" game(s) archived — "+curProvider);
+  applyFilters();updateStats();refreshListData();
+});
+
+/* ---------- raw data modal ---------- */
+function openRaw(id){
+  const g=DATA.find(x=>x.id===id);
+  const src=g._src||[];
+  document.getElementById("modalTitle").textContent="Raw Data — "+g.name;
+  document.getElementById("modalBody").textContent=JSON.stringify({
+    provider_game_id:id, provider:g.provider, name:g.name, status:g.status,
+    provider_game_type:g.type, provider_category:g.cat, image_size_kb:g.imgKB,
+    kz_category:src[5]||null, maintenance:src[6]||false, promo_blacklist:src[7]||false, visibility:src[8]||false, untested:src[9]||false
+  },null,2);
+  document.getElementById("modalBg").classList.add("show");
+}
+document.getElementById("modalClose").onclick=()=>document.getElementById("modalBg").classList.remove("show");
+document.getElementById("modalBg").addEventListener("click",e=>{if(e.target.id==="modalBg")e.target.classList.remove("show");});
+
+/* ---------- Install All validation check ---------- */
+const KZ_LABELS=["SLOTS","FISH","LIVE","ARCADE","CRASH"];
+function resolveKzCategory(cat){
+  const norm=(cat||"").trim().toUpperCase();
+  const ok=KZ_LABELS.includes(norm);
+  return {value:ok?norm:"SLOTS",ok};
+}
+function collectPendingInstalls(scopeKey){
+  const keys=scopeKey?[scopeKey]:Object.keys(PROVIDERS);
+  const items=[];
+  keys.forEach(key=>{
+    const p=PROVIDERS[key];
+    p.games.forEach((t,i)=>{
+      if(t[2]==="New") items.push({name:t[0],id:t[1],provider:p.provider,aggregator:p.agg.toLowerCase(),cat:t[4],_src:t,img:i});
+    });
+  });
+  return items;
+}
+let installCheckRows=[];
+let installCheckOnDone=null;
+let installCheckCommitted=false;
+function showInstallCheckPage(){
+  VIEWS.forEach(v=>{const el=document.getElementById("view-"+v);if(el)el.style.display="none";});
+  document.getElementById("view-installcheck").style.display="";
+}
+function hideInstallCheckPage(){
+  document.getElementById("view-installcheck").style.display="none";
+  showTab(location.hash.slice(1)||"details",false);
+  installCheckRows=[];installCheckOnDone=null;installCheckCommitted=false;
+}
+function openInstallCheck(items,onDone){
+  // mutate the passed-in items in place (not a copy) — for Details-tab items these ARE the live DATA/rows objects,
+  // so setStatus() on them later stays visible to the table/stats without a separate reconciliation step.
+  installCheckCommitted=false;
+  installCheckRows=items.map(it=>{
+    const r=resolveKzCategory(it.cat);
+    it.kz=r.value; it.kzOk=r.ok; it.maintenance=false; it.promoBlacklist=false; it.visibility=false; it.untested=false;
+    return it;
+  });
+  installCheckOnDone=onDone;
+  document.getElementById("ic-title").textContent="Install All — Validation Check";
+  document.getElementById("ic-desc").textContent="Please check the defaults below. KZ Game Category is validated against our preset labels (SLOTS, FISH, LIVE, ARCADE, CRASH) — anything unrecognized defaults to SLOTS and is flagged in red.";
+  document.getElementById("icStartOverBtn").style.display="";
+  document.getElementById("icProceedBtn").style.display="";
+  document.getElementById("icBackBtn").style.display="none";
+  document.getElementById("ic-warnbanner").style.display="flex";
+  document.getElementById("ic-okbanner").style.display="none";
+  renderInstallCheck();
+  showInstallCheckPage();
+}
+function renderInstallCheck(){
+  const body=document.getElementById("ic-body");
+  body.innerHTML=installCheckRows.map((r,idx)=>{
+    const kzCell=installCheckCommitted
+      ? `${r.kz}${!r.kzOk?`<div class="ic-err">defaulted from "${r.cat&&r.cat!=="-"?r.cat:"(none)"}"</div>`:""}`
+      : `<select data-ic-kz="${idx}">${KZ_LABELS.map(l=>`<option value="${l}" ${l===r.kz?"selected":""}>${l}</option>`).join("")}</select>${!r.kzOk?`<div class="ic-err">Provider category "${r.cat&&r.cat!=='-'?r.cat:'(none)'}" not recognized — defaulted to SLOTS</div>`:""}`;
+    const tg=(key)=>installCheckCommitted
+      ? `<span class="muted">${r[key]?"Yes":"No"}</span>`
+      : `<span class="tg ${r[key]?"on":""}" data-ic-tg="${key}" data-idx="${idx}"></span>`;
+    return `<tr>
+      <td><span class="game-img" style="background:linear-gradient(${GRAD[r.img%GRAD.length]})"></span></td>
+      <td><div class="gname">${r.name}</div><div class="gid">${r.id}</div></td>
+      <td>${r.provider}</td>
+      <td>${kzCell}</td>
+      <td>${tg("maintenance")}</td>
+      <td>${tg("promoBlacklist")}</td>
+      <td>${tg("visibility")}</td>
+      <td>${tg("untested")}</td>
+      <td>${installCheckCommitted?'<b style="color:var(--green)">Installed</b>':'<span class="muted">Pending</span>'}</td>
+    </tr>`;
+  }).join("");
+  const errors=installCheckRows.filter(r=>!r.kzOk).length;
+  document.getElementById("ic-total").textContent=installCheckRows.length;
+  document.getElementById("ic-errors").textContent=errors;
+  document.getElementById("ic-ready").textContent=installCheckRows.length-errors;
+  document.getElementById("ic-errbanner").style.display=(!installCheckCommitted&&errors)?"flex":"none";
+  document.getElementById("ic-errbanner-count").textContent=errors;
+}
+document.getElementById("ic-body").addEventListener("click",e=>{
+  if(installCheckCommitted) return;
+  const key=e.target.dataset.icTg;
+  if(!key) return;
+  const idx=+e.target.dataset.idx;
+  installCheckRows[idx][key]=!installCheckRows[idx][key];
+  renderInstallCheck();
+});
+document.getElementById("ic-body").addEventListener("change",e=>{
+  if(installCheckCommitted) return;
+  const idx=e.target.dataset.icKz;
+  if(idx===undefined) return;
+  installCheckRows[idx].kz=e.target.value;
+  installCheckRows[idx].kzOk=true; // an explicit choice from the preset list is always valid
+  renderInstallCheck();
+});
+document.getElementById("icStartOverBtn").addEventListener("click",()=>{
+  toast("Install cancelled — no changes made");
+  hideInstallCheckPage();
+});
+document.getElementById("icBackBtn").addEventListener("click",()=>{
+  hideInstallCheckPage();
+});
+document.getElementById("icExportBtn").addEventListener("click",()=>{
+  const header=["Game Name","Game Code","Provider","Provider Category","KZ Game Category","Validation","Maintenance","Promo Blacklist","Visibility","Untested","Status"];
+  const csv=[header.join(","),...installCheckRows.map(r=>[r.name,r.id,r.provider,r.cat||"-",r.kz,r.kzOk?"OK":"Defaulted",r.maintenance,r.promoBlacklist,r.visibility,r.untested,installCheckCommitted?"Installed":"Pending"].map(csvEscape).join(","))].join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="install_all_log.csv";link.click();
+  toast("Exported "+installCheckRows.length+" rows");
+});
+document.getElementById("icProceedBtn").addEventListener("click",()=>{
+  let defaulted=0;
+  installCheckRows.forEach(r=>{
+    setStatus(r,"Installed");
+    if(r._src){ r._src[5]=r.kz; r._src[6]=r.maintenance; r._src[7]=r.promoBlacklist; r._src[8]=r.visibility; r._src[9]=r.untested; }
+    if(!r.kzOk) defaulted++;
+    pushAuditRaw(r.name,r.aggregator,r.provider,r.id,r.kz,"Installed");
+  });
+  const n=installCheckRows.length;
+  installCheckCommitted=true;
+  if(typeof installCheckOnDone==="function") installCheckOnDone(); // sync Details/List stats now; the page itself stays put
+  document.getElementById("ic-title").textContent="Install All — Completed";
+  document.getElementById("ic-desc").textContent=n+" game(s) installed"+(defaulted?" — "+defaulted+" defaulted to SLOTS":"")+". Export the log below, or go back.";
+  document.getElementById("icStartOverBtn").style.display="none";
+  document.getElementById("icProceedBtn").style.display="none";
+  document.getElementById("icBackBtn").style.display="";
+  document.getElementById("ic-warnbanner").style.display="none";
+  document.getElementById("ic-okbanner").style.display="flex";
+  document.getElementById("ic-okcount").textContent=n;
+  renderInstallCheck();
+  toast(n+" game(s) installed"+(defaulted?" — "+defaulted+" defaulted to SLOTS":""));
+});
+
+/* ---------- sync actions ---------- */
+document.getElementById("runSyncBtn").addEventListener("click",()=>{
+  const btn=document.getElementById("runSyncBtn");
+  btn.disabled=true;btn.textContent="Syncing…";
+  setTimeout(()=>{
+    // simulate finding one more new game, persisted onto the provider record so List stays in sync
+    const p=PROVIDERS[curProvider];
+    const tuple=[p.provider+" New Find "+(p.games.length+1),String(80000+p.games.length),"New","-","-"];
+    p.games.push(tuple);
+    lastSyncTime=new Date().toISOString().slice(0,19).replace("T"," ");
+    p.lastSync=lastSyncTime;
+    DATA.push({img:DATA.length,name:tuple[0],id:tuple[1],provider:p.provider,aggregator:p.agg.toLowerCase(),status:tuple[2],type:tuple[3],cat:tuple[4],imgKB:"12.00",_src:tuple});
+    btn.disabled=false;btn.textContent="Run New Sync";
+    applyFilters();updateStats();refreshListData();
+    toast("Sync complete — "+curProvider);
+  },900);
+});
+document.getElementById("loadPrevBtn").addEventListener("click",()=>{
+  toast("Loaded previous sync result for "+curProvider);
+});
+
+/* ---------- list view (provider sync overview) ----------
+   Derived directly from PROVIDERS, so List always matches Details — no separate/duplicated numbers to drift. */
+function deriveProviderList(){
+  return Object.keys(PROVIDERS).map(key=>{
+    const p=PROVIDERS[key];
+    const newG=p.games.filter(g=>g[2]==="New").length;
+    const installed=p.games.filter(g=>g[2]==="Installed").length;
+    const expired=p.games.filter(g=>g[2]==="Expired"||g[2]==="Archived").length;
+    return {agg:p.agg,provider:p.provider,vis:p.vis,maint:p.maint,newG,expired,installed,total:p.games.length,lastSync:p.lastSync};
+  });
+}
+function refreshListData(){
+  PROVIDER_LIST=deriveProviderList();
+  applyListFilters();
+}
+let PROVIDER_LIST=deriveProviderList();
+let listRows=[...PROVIDER_LIST];
+let listSortDir=0; // 0=none, 1=asc, -1=desc
+const vmActive=new Set(["vis-yes","maint-no"]); // default chips shown in the target screenshot
+
+function fillListProviderSelect(){
+  const s=document.getElementById("lf-provider");
+  [...new Set(PROVIDER_LIST.map(p=>p.provider))].sort().forEach(name=>{
+    const o=document.createElement("option");o.value=name;o.textContent=name;s.appendChild(o);
+  });
+}
+function renderVmChips(){
+  const labels={"vis-yes":"Visibility: Yes","vis-no":"Visibility: No","maint-yes":"Maintenance: Yes","maint-no":"Maintenance: No"};
+  const field=document.getElementById("lf-vmfield");
+  if(!vmActive.size){field.innerHTML='<span class="cf-placeholder" id="lf-vmplaceholder">All</span>';return;}
+  field.innerHTML=[...vmActive].map(k=>`<span class="fchip">${labels[k]}<span class="x" data-vmrm="${k}">✕</span></span>`).join("");
+}
+function applyListFilters(){
+  const provider=document.getElementById("lf-provider").value;
+  listRows=PROVIDER_LIST.filter(p=>{
+    if(provider && p.provider!==provider) return false;
+    if(vmActive.has("vis-yes") && !p.vis) return false;
+    if(vmActive.has("vis-no") && p.vis) return false;
+    if(vmActive.has("maint-yes") && !p.maint) return false;
+    if(vmActive.has("maint-no") && p.maint) return false;
+    return true;
+  });
+  if(listSortDir) sortListRows();
+  renderList();
+}
+function sortListRows(){
+  listRows.sort((a,b)=>(a.newG-b.newG)*listSortDir);
+}
+function renderList(){
+  const body=document.getElementById("list-body");
+  body.innerHTML=listRows.length ? listRows.map(p=>`
+    <tr>
+      <td>${p.agg}</td>
+      <td>${p.provider}</td>
+      <td class="${p.vis?'yn-yes':'yn-no'}">${p.vis?'YES':'NO'}</td>
+      <td class="${p.maint?'yn-yes':'yn-no'}">${p.maint?'YES':'NO'}</td>
+      <td class="num">${p.newG}</td>
+      <td class="num">${p.expired}</td>
+      <td class="num">${p.installed}</td>
+      <td class="num">${p.total}</td>
+      <td>${p.lastSync}</td>
+      <td><span class="chev" data-drill="${p.provider}">›</span></td>
+    </tr>`).join("") : `<tr><td colspan="10" class="empty">No providers match the current filters.</td></tr>`;
+}
+document.getElementById("lh-new").addEventListener("click",()=>{
+  listSortDir = listSortDir===1 ? -1 : listSortDir===-1 ? 0 : 1;
+  document.getElementById("lh-new-ind").textContent = listSortDir===1?"▲":listSortDir===-1?"▼":"⇕";
+  document.getElementById("lh-new-ind").classList.toggle("active",!!listSortDir);
+  if(listSortDir) sortListRows(); else applyListFilters();
+  renderList();
+});
+document.getElementById("lf-provider").addEventListener("change",applyListFilters);
+document.getElementById("lf-search").addEventListener("click",applyListFilters);
+document.getElementById("lf-clear").addEventListener("click",()=>{
+  document.getElementById("lf-provider").value="";
+  vmActive.clear();renderVmChips();applyListFilters();
+});
+document.getElementById("lf-collapse").addEventListener("click",e=>{
+  const row=document.getElementById("list-filter-row");
+  const collapsed=row.style.display==="none";
+  row.style.display=collapsed?"grid":"none";
+  e.target.textContent=collapsed?"Collapse Filters ⌃":"Expand Filters ⌄";
+});
+
+/* Visibility/Maintenance chip field popover */
+let vmPop=null;
+function closeVmPop(){if(vmPop){vmPop.remove();vmPop=null;}}
+document.getElementById("lf-vmfield").addEventListener("click",e=>{
+  if(e.target.dataset.vmrm){ vmActive.delete(e.target.dataset.vmrm); renderVmChips(); applyListFilters(); return; }
+  if(vmPop){closeVmPop();return;}
+  const opts=[["vis-yes","Visibility: Yes"],["vis-no","Visibility: No"],["maint-yes","Maintenance: Yes"],["maint-no","Maintenance: No"]];
+  const pop=document.createElement("div");pop.className="pop";
+  pop.innerHTML=opts.map(([k,label])=>`<label class="row"><input type="checkbox" data-vmopt="${k}" ${vmActive.has(k)?'checked':''}> ${label}</label>`).join("");
+  document.body.appendChild(pop);
+  const rc=e.currentTarget.getBoundingClientRect();
+  pop.style.top=(window.scrollY+rc.bottom+6)+"px";pop.style.left=(window.scrollX+rc.left)+"px";
+  vmPop=pop;
+  pop.querySelectorAll("[data-vmopt]").forEach(cb=>cb.addEventListener("change",()=>{
+    cb.checked?vmActive.add(cb.dataset.vmopt):vmActive.delete(cb.dataset.vmopt);
+    renderVmChips();applyListFilters();
+  }));
+});
+document.addEventListener("click",e=>{
+  if(vmPop && !vmPop.contains(e.target) && e.target.id!=="lf-vmfield" && !e.target.closest("#lf-vmfield")) closeVmPop();
+});
+
+/* drill-in: jump to Details tab for the selected provider (all providers are already fully detailed, 1:1 with PROVIDERS) */
+document.getElementById("list-body").addEventListener("click",e=>{
+  const name=e.target.dataset.drill;
+  if(!name) return;
+  const row=PROVIDER_LIST.find(p=>p.provider===name);
+  if(!row) return;
+  const key=row.agg.toLowerCase()+": "+row.provider;
+  document.getElementById("providerSel").value=key;
+  loadProvider(key);
+  showTab("details",true);
+});
+
+/* List tab bulk actions — apply to ALL providers (ignoring the filters above), unlike the Details tab versions which are scoped to the selected provider. */
+function bulkArchiveProviderRow(row){
+  const key=row.agg.toLowerCase()+": "+row.provider;
+  const games=PROVIDERS[key].games;
+  let n=0;
+  games.forEach(t=>{
+    if(t[2]==="Installed"){
+      t[2]="Archived";
+      pushAuditRaw(t[0],row.agg.toLowerCase(),row.provider,t[1],t[4],"Archived");
+      n++;
+    }
+  });
+  return n;
+}
+// Install All (List tab) — across every provider, ignoring the filters above. Goes through the validation check modal first.
+document.getElementById("listInstallAllBtn").addEventListener("click",()=>{
+  const targets=collectPendingInstalls(null);
+  if(!targets.length){toast("No new games to install across any provider");return;}
+  openInstallCheck(targets,()=>{ refreshListData(); loadProvider(curProvider); });
+});
+document.getElementById("listArchiveAllBtn").addEventListener("click",()=>{
+  let totalGames=0,affected=0;
+  PROVIDER_LIST.forEach(row=>{
+    const n=bulkArchiveProviderRow(row);
+    if(n>0) affected++;
+    totalGames+=n;
+  });
+  refreshListData();
+  loadProvider(curProvider);
+  if(!totalGames){toast("No installed games to archive across any provider");return;}
+  toast(totalGames+" game(s) archived across "+affected+" provider(s)");
+});
+
+fillListProviderSelect();
+renderVmChips();
+applyListFilters();
+
+/* ---------- audit log ---------- */
+const AUDIT=[];  // starts empty — every entry here is something you install/archive during this session
+function pushAuditRaw(name,aggregator,provider,code,category,status){
+  AUDIT.unshift({name,aggregator,provider,code,date:new Date().toISOString().slice(0,19).replace("T"," "),category,status});
+}
+function logAudit(g,status){
+  pushAuditRaw(g.name,g.aggregator,g.provider,g.id,g.cat,status);
+}
+function csvEscape(v){v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+
+let auditRows=[];
+function fillAuditProviderSelect(){
+  const s=document.getElementById("af-provider");
+  Object.values(PROVIDERS).map(p=>p.provider).sort().forEach(name=>{
+    const o=document.createElement("option");o.value=name;o.textContent=name;s.appendChild(o);
+  });
+}
+function applyAuditFilters(){
+  const provider=document.getElementById("af-provider").value;
+  const action=document.getElementById("af-action").value;
+  const fromVal=document.getElementById("af-from").value;
+  const toVal=document.getElementById("af-to").value;
+  const from=fromVal?new Date(fromVal):null;
+  const to=toVal?new Date(toVal):null;
+  auditRows=AUDIT.filter(a=>{
+    if(provider && a.provider!==provider) return false;
+    if(action && a.status!==action) return false;
+    const d=new Date(a.date.replace(" ","T"));
+    if(from && d<from) return false;
+    if(to && d>to) return false;
+    return true;
+  });
+  renderAudit();
+}
+document.getElementById("af-provider").addEventListener("change",applyAuditFilters);
+document.getElementById("af-action").addEventListener("change",applyAuditFilters);
+document.getElementById("af-search").addEventListener("click",applyAuditFilters);
+document.getElementById("af-clear").addEventListener("click",()=>{
+  document.getElementById("af-provider").value="";
+  document.getElementById("af-action").value="";
+  document.getElementById("af-from").value="";
+  document.getElementById("af-to").value="";
+  applyAuditFilters();
+});
+document.getElementById("af-collapse").addEventListener("click",e=>{
+  const row=document.getElementById("audit-filter-row");
+  const collapsed=row.style.display==="none";
+  row.style.display=collapsed?"grid":"none";
+  e.target.textContent=collapsed?"Collapse Filters ⌃":"Expand Filters ⌄";
+});
+
+function renderAudit(){
+  const sorted=[...auditRows].sort((a,b)=>b.date.localeCompare(a.date));
+  const body=document.getElementById("audit-body");
+  body.innerHTML=sorted.length ? sorted.map(a=>`<tr>
+    <td><div class="gname">${a.name}</div></td>
+    <td>${a.aggregator}</td>
+    <td>${a.provider}</td>
+    <td class="gid">${a.code}</td>
+    <td>${a.date}</td>
+    <td>${a.category}</td>
+    <td><b style="color:${a.status==='Installed'?'var(--green)':a.status==='Archived'?'var(--ink-faint)':'var(--red)'}">${a.status}</b></td>
+  </tr>`).join("") : `<tr><td colspan="7" class="empty">No activity matches the current filters.</td></tr>`;
+}
+document.getElementById("exportAuditBtn").addEventListener("click",()=>{
+  const sorted=[...auditRows].sort((a,b)=>b.date.localeCompare(a.date));
+  const header=["Game Name","Game Aggregator","Game Provider","Game Code","Date Install","Game Category","Action Type"];
+  const csv=[header.join(","),...sorted.map(a=>[a.name,a.aggregator,a.provider,a.code,a.date,a.category,a.status].map(csvEscape).join(","))].join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="games_sync_audit.csv";link.click();
+  toast("Exported "+sorted.length+" audit records");
+});
+fillAuditProviderSelect();
+
+/* ---------- tabs (hash-routed) ---------- */
+const VIEWS=["list","details","audit"];
+function showTab(name,push){
+  if(!VIEWS.includes(name)) name="details";
+  document.querySelectorAll("#tabs span").forEach(s=>s.classList.toggle("active",s.dataset.tab===name));
+  VIEWS.forEach(v=>document.getElementById("view-"+v).style.display=(v===name?"":"none"));
+  if(name==="audit") applyAuditFilters();
+  const hash="#"+name;
+  if(push && location.hash!==hash) history.pushState(null,"",hash);
+}
+document.getElementById("tabs").addEventListener("click",e=>{
+  const tab=e.target.closest("[data-tab]");if(!tab)return;
+  showTab(tab.dataset.tab,true);
+});
+window.addEventListener("popstate",()=>showTab(location.hash.slice(1)));
+window.addEventListener("hashchange",()=>showTab(location.hash.slice(1)));
+showTab(location.hash.slice(1)||"details",false);
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),1800);}
+
+/* ---------- init ---------- */
+loadProvider(curProvider);
+</script>
+</body>
+</html>
