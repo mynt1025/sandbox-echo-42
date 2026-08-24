@@ -303,7 +303,7 @@
             <button class="btn" id="exportAuditBtn">⬇ Export .CSV</button>
           </div>
           <table style="min-width:auto"><thead><tr>
-            <th>Game Name</th><th>Game Aggregator</th><th>Game Provider</th><th>Game Code</th><th>Date Install</th><th>Game Category</th><th>Action Type</th><th>Actor</th>
+            <th>Actor</th><th>Activity</th><th>Game Provider</th><th>Games Affected</th><th>Date &amp; Time</th>
           </tr></thead>
           <tbody id="audit-body"></tbody></table>
         </div>
@@ -544,23 +544,22 @@ function updateSel(){
 }
 document.getElementById("bulkClear").onclick=()=>{selected.clear();document.getElementById("selAll").checked=false;render();};
 document.getElementById("bulkInstall").onclick=()=>{
-  let n=0;
-  [...selected].forEach(id=>{const g=DATA.find(x=>x.id===id);if(g&&g.status==="New"){installOne(g);n++;}});
+  const targets=[];
+  [...selected].forEach(id=>{const g=DATA.find(x=>x.id===id);if(g&&g.status==="New"){installOne(g);targets.push(g);}});
   selected.clear();
-  toast(n+" game(s) installed");
+  logAuditBatch(targets,"Installed");
+  toast(targets.length+" game(s) installed");
   applyFilters();updateStats();refreshListData();
 };
 function installGame(id){
   const g=DATA.find(x=>x.id===id);
-  if(g){installOne(g);toast(g.name+" installed");applyFilters();updateStats();refreshListData();}
+  if(g){installOne(g);logAuditBatch([g],"Installed");toast(g.name+" installed");applyFilters();updateStats();refreshListData();}
 }
 function installOne(g){
   setStatus(g,"Installed");
-  logAudit(g,"Installed");
 }
 function archiveOne(g){
   setStatus(g,"Archived");
-  logAudit(g,"Archived");
 }
 // Install All (Details tab) — apply only to the games currently visible under the active filters, for the selected provider. Goes through the validation check modal first.
 document.getElementById("installAllBtn").addEventListener("click",()=>{
@@ -573,6 +572,7 @@ document.getElementById("archiveAllBtn").addEventListener("click",()=>{
   const targets=rows.filter(g=>g.status==="Installed");
   if(!targets.length){toast("No installed games to archive");return;}
   targets.forEach(archiveOne);
+  logAuditBatch(targets,"Archived");
   toast(targets.length+" game(s) archived — "+curProvider);
   applyFilters();updateStats();refreshListData();
 });
@@ -706,8 +706,8 @@ document.getElementById("icProceedBtn").addEventListener("click",()=>{
     setStatus(r,"Installed");
     if(r._src){ r._src[5]=r.kz; r._src[6]=r.maintenance; r._src[7]=r.promoBlacklist; r._src[8]=r.visibility; r._src[9]=r.untested; }
     if(!r.kzOk) defaulted++;
-    pushAuditRaw(r.name,r.aggregator,r.provider,r.id,r.kz,"Installed");
   });
+  logAuditBatch(installCheckRows.map(r=>({...r,cat:r.kz})),"Installed"); // one audit entry per provider covered, using the resolved KZ category; full per-game breakdown stays on this page's own CSV export
   const n=installCheckRows.length;
   installCheckCommitted=true;
   if(typeof installCheckOnDone==="function") installCheckOnDone(); // sync Details/List stats now; the page itself stays put
@@ -866,15 +866,15 @@ document.getElementById("list-body").addEventListener("click",e=>{
 function bulkArchiveProviderRow(row){
   const key=row.agg.toLowerCase()+": "+row.provider;
   const games=PROVIDERS[key].games;
-  let n=0;
+  const affected=[];
   games.forEach(t=>{
     if(t[2]==="Installed"){
       t[2]="Archived";
-      pushAuditRaw(t[0],row.agg.toLowerCase(),row.provider,t[1],t[4],"Archived");
-      n++;
+      affected.push({name:t[0],id:t[1],cat:t[4],provider:row.provider,aggregator:row.agg.toLowerCase()});
     }
   });
-  return n;
+  logAuditBatch(affected,"Archived");
+  return affected.length;
 }
 // Install All (List tab) — across every provider, ignoring the filters above. Goes through the validation check modal first.
 document.getElementById("listInstallAllBtn").addEventListener("click",()=>{
@@ -899,14 +899,23 @@ fillListProviderSelect();
 renderVmChips();
 applyListFilters();
 
-/* ---------- audit log ---------- */
+/* ---------- audit log ----------
+   One entry per ACTION (not per game): "{actor} {installed/archived} N game(s) ({provider}) on {when}".
+   The full per-game breakdown for an Install All run lives on that flow's own Completed page / CSV export —
+   this log only needs to say who did what, to how many games, and when. */
 const AUDIT=[];  // starts empty — every entry here is something you install/archive during this session
 const CURRENT_ACTOR="Admin"; // the BO user driving this session — every action in this wireframe is manually triggered, there's no cron/system actor
-function pushAuditRaw(name,aggregator,provider,code,category,status,actor){
-  AUDIT.unshift({name,aggregator,provider,code,date:new Date().toISOString().slice(0,19).replace("T"," "),category,status,actor:actor||CURRENT_ACTOR});
-}
-function logAudit(g,status){
-  pushAuditRaw(g.name,g.aggregator,g.provider,g.id,g.cat,status);
+function logAuditBatch(games,action){
+  if(!games.length) return;
+  const groups={};
+  games.forEach(g=>{
+    (groups[g.provider]=groups[g.provider]||{aggregator:g.aggregator,items:[]}).items.push({name:g.name,code:g.id,category:g.cat||"-"});
+  });
+  const now=new Date().toISOString().slice(0,19).replace("T"," ");
+  Object.keys(groups).forEach(provider=>{
+    const grp=groups[provider];
+    AUDIT.unshift({actor:CURRENT_ACTOR,provider,aggregator:grp.aggregator,action,count:grp.items.length,date:now,games:grp.items});
+  });
 }
 function csvEscape(v){v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
 
@@ -926,7 +935,7 @@ function applyAuditFilters(){
   const to=toVal?new Date(toVal):null;
   auditRows=AUDIT.filter(a=>{
     if(provider && a.provider!==provider) return false;
-    if(action && a.status!==action) return false;
+    if(action && a.action!==action) return false;
     const d=new Date(a.date.replace(" ","T"));
     if(from && d<from) return false;
     if(to && d>to) return false;
@@ -951,24 +960,22 @@ document.getElementById("af-collapse").addEventListener("click",e=>{
   e.target.textContent=collapsed?"Collapse Filters ⌃":"Expand Filters ⌄";
 });
 
+function auditVerb(action){return action==="Installed"?"installed":"archived";}
 function renderAudit(){
   const sorted=[...auditRows].sort((a,b)=>b.date.localeCompare(a.date));
   const body=document.getElementById("audit-body");
   body.innerHTML=sorted.length ? sorted.map(a=>`<tr>
-    <td><div class="gname">${a.name}</div></td>
-    <td>${a.aggregator}</td>
+    <td>${a.actor}</td>
+    <td><b style="color:${a.action==='Installed'?'var(--green)':'var(--ink-faint)'}">${a.actor} ${auditVerb(a.action)} ${a.count} game${a.count===1?"":"s"}</b></td>
     <td>${a.provider}</td>
-    <td class="gid">${a.code}</td>
+    <td class="num">${a.count}</td>
     <td>${a.date}</td>
-    <td>${a.category}</td>
-    <td><b style="color:${a.status==='Installed'?'var(--green)':a.status==='Archived'?'var(--ink-faint)':'var(--red)'}">${a.status}</b></td>
-    <td>${a.actor||CURRENT_ACTOR}</td>
-  </tr>`).join("") : `<tr><td colspan="8" class="empty">No activity matches the current filters.</td></tr>`;
+  </tr>`).join("") : `<tr><td colspan="5" class="empty">No activity matches the current filters.</td></tr>`;
 }
 document.getElementById("exportAuditBtn").addEventListener("click",()=>{
   const sorted=[...auditRows].sort((a,b)=>b.date.localeCompare(a.date));
-  const header=["Game Name","Game Aggregator","Game Provider","Game Code","Date Install","Game Category","Action Type","Actor"];
-  const csv=[header.join(","),...sorted.map(a=>[a.name,a.aggregator,a.provider,a.code,a.date,a.category,a.status,a.actor||CURRENT_ACTOR].map(csvEscape).join(","))].join("\n");
+  const header=["Actor","Provider Aggregator","Game Provider","Action Type","Games Affected","Date & Time"];
+  const csv=[header.join(","),...sorted.map(a=>[a.actor,a.aggregator,a.provider,a.action,a.count,a.date].map(csvEscape).join(","))].join("\n");
   const blob=new Blob([csv],{type:"text/csv"});
   const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="games_sync_audit.csv";link.click();
   toast("Exported "+sorted.length+" audit records");
