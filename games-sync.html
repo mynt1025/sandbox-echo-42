@@ -112,6 +112,7 @@
   .tg{width:34px;height:18px;border-radius:20px;background:#cdd0db;position:relative;cursor:pointer;transition:.15s;display:inline-block}
   .tg::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.15s}
   .tg.on{background:var(--accent)}
+  .tg.tg-danger.on{background:var(--red)}
   .tg.on::after{left:18px}
 
   /* List view: chip filter field + popover + sortable header */
@@ -628,7 +629,7 @@ function openInstallCheck(items,onDone){
   installCheckCommitted=false;
   installCheckRows=items.map(it=>{
     const r=resolveKzCategory(it.cat);
-    it.kz=r.value; it.kzOk=r.ok; it.maintenance=false; it.promoBlacklist=false; it.visibility=false; it.untested=false;
+    it.kz=r.value; it.kzOk=r.ok; it.maintenance=false; it.promoBlacklist=false; it.visibility=false; it.untested=true;
     return it;
   });
   installCheckOnDone=onDone;
@@ -648,9 +649,9 @@ function renderInstallCheck(){
     const kzCell=installCheckCommitted
       ? `${r.kz}${!r.kzOk?`<div class="ic-err">defaulted from "${r.cat&&r.cat!=="-"?r.cat:"(none)"}"</div>`:""}`
       : `<select data-ic-kz="${idx}">${KZ_LABELS.map(l=>`<option value="${l}" ${l===r.kz?"selected":""}>${l}</option>`).join("")}</select>${!r.kzOk?`<div class="ic-err">Provider category "${r.cat&&r.cat!=='-'?r.cat:'(none)'}" not recognized — defaulted to SLOTS</div>`:""}`;
-    const tg=(key)=>installCheckCommitted
-      ? `<span class="muted">${r[key]?"Yes":"No"}</span>`
-      : `<span class="tg ${r[key]?"on":""}" data-ic-tg="${key}" data-idx="${idx}"></span>`;
+    const tg=(key,danger)=>installCheckCommitted
+      ? `<span class="${danger&&r[key]?'':'muted'}" style="${danger&&r[key]?'color:var(--red);font-weight:600':''}">${r[key]?"Yes":"No"}</span>`
+      : `<span class="tg ${r[key]?"on":""} ${danger?"tg-danger":""}" data-ic-tg="${key}" data-idx="${idx}"></span>`;
     return `<tr>
       <td><span class="game-img" style="background:linear-gradient(${GRAD[r.img%GRAD.length]})"></span></td>
       <td><div class="gname">${r.name}</div><div class="gid">${r.id}</div></td>
@@ -659,7 +660,7 @@ function renderInstallCheck(){
       <td>${tg("maintenance")}</td>
       <td>${tg("promoBlacklist")}</td>
       <td>${tg("visibility")}</td>
-      <td>${tg("untested")}</td>
+      <td>${tg("untested",true)}</td>
       <td>${installCheckCommitted?'<b style="color:var(--green)">Installed</b>':'<span class="muted">Pending</span>'}</td>
     </tr>`;
   }).join("");
